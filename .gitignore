@@ -1,0 +1,17 @@
+*.log
+Debug/
+Release/
+.project
+.cproject
+.settings/
+slprj/
+temp/
+*grt_rt*
+*.mexa64
+*.slx*
+*.m
+*.mat
+
+*~
+
+#eof
