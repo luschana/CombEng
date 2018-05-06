@@ -1,5 +1,5 @@
 /*
- * <one line to give the program's name and a brief idea of what it does.>
+ * Time slice based calculation of a combustion engine;
  * Copyright (C) 2014  Alex Luschan <alexander.luschan@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
