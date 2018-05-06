@@ -21,8 +21,7 @@
 // Abstract:
 //    The sizes information is used by Simulink to determine the S-function
 //    block's characteristics (number of inputs, outputs, states, etc.).
-static void mdlInitializeSizes(SimStruct *S)
-{
+static void mdlInitializeSizes(SimStruct *S){
     // No expected parameters
     ssSetNumSFcnParams(S, 0);
 
