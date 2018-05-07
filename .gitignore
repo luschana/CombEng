@@ -3,3 +3,11 @@
 Debug/
 Release/
 .settings/
+slprj/
+build/
+*_rtw/
+ept/
+Deployment*/
+*.mex*
+
+#eof
