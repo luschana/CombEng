@@ -1,0 +1,5 @@
+.*proj*
+*~
+Debug/
+Release/
+.settings/
