@@ -25,6 +25,7 @@ Cylinder::Cylinder(){
 	_x_p = 0.0;
 	_dx_p = 0.0;
 	_v_p = 0.0;
+	_dv_p = 0.0;
 	_M_p = 0.0;
 	_M_g = 0.0;
 	_F_fr = 0.0;
@@ -37,6 +38,7 @@ Cylinder::Cylinder(){
 	_pinlet = NULL;
 	_pexhaust = NULL;
 	_pecu = NULL;
+	_poil = NULL;
 }
 
 Cylinder::Cylinder(double phi0, GasComponent *pinlet, GasComponent *pexhaust, Ecu *pecu, Oil *poil){
@@ -44,6 +46,8 @@ Cylinder::Cylinder(double phi0, GasComponent *pinlet, GasComponent *pexhaust, Ec
 	_x_p = 0.0;
 	_dx_p = 0.0;
 	_v_p = 0.0;
+	_dv_p = 0.0;
+
 	_M_p = 0.0;
 	_M_g = 0.0;
 	_F_fr = 0.0;
