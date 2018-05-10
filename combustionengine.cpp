@@ -61,7 +61,7 @@ void CombustionEngine::run(double w, double thrPos) {
 	_w = w;
 	_cnt++;
 	for (i = 0; i < Ncyl; i++) {
-		_cyl[i].calcCylinder(dphi);
+		_cyl[i].run(dphi);
 		_M_Shaft += _cyl[i].getM_G() + _cyl[i].getM_P();
 	}
 	Environment::getInst()->getAmbientAir()->calcGasExchange(A_intake, &_intake);

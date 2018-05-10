@@ -36,7 +36,7 @@ public:
 
     void setT_CW(double T_CW);
 
-    void calcCylinder(double dPhi);
+    void run(double dPhi);
 
 	double getH_Cool() const;
 	double getM_G() const;
@@ -59,11 +59,11 @@ private:
     double _H_cooling, _T_CW, _T_cyl, _H_hx_gas; // to water [J], [K], [K]
     double _n_Fuel;
     GasComponent _gc;
-    GasComponent *_pinlet, *_pexhaust;
+    GasComponent *_pintake, *_pexhaust;
     Ecu *_pecu;
     Oil *_poil;
 
-    double getHeatExchangeEnthalpy();
+    void calcHeatExchange();
     double getCylArea(double x_pos) const;
     double getCmpFactor() const;
     bool passedAngle(double alpha, double dphi) const;
