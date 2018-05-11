@@ -116,20 +116,23 @@ void GasComponent::calcGasExchange(double A_crosssection, GasComponent *pgc){
 
 void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_Fuel){
 		//,const GasComponent &inlet, GasComponent &exhaust){
+	if(_T > Fuel_T_Autoignition) {
+		_combustionStarted = true;
+	}
 	double deltaH = H_cooling;
 	deltaH += isentropicStateChange(cmpFactor);
 	deltaH += injection(n_Fuel);
 	deltaH += chemReaction();
 	double dT_est = _T*deltaH/_H; // == dH/(n*cp)
+	if(_T + dT_est < 200) {
+		dT_est = 200 - _T; //debugging / Fangnetz -- should never occur!!
+		deltaH = dT_est * _cp * _n_g;
+	}
 	_cp = Shomate::getInst()->getHeatCapacity(_T + dT_est, _nu);
 	_MW = getMolareWeight();
 	_H += deltaH;
 	_T = _H/(_n_g * _cp);
-	if(_T > Fuel_T_Autoignition) {
-		_combustionStarted = true;
-	}
 	_p = R*_T/_v;
-
 }
 
 void GasComponent::setCombustionStarted(bool combustionStarted) {
