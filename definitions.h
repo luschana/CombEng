@@ -45,7 +45,7 @@ const double ACyl = pow(r_cs,2.0) * M_PI;
 const double hCyl = 2.0*r_cs*(1.0+1.0/chi); //[m] height from lower dead center to cylinder head
 // fluid dynamics
 const double k_Aval = 0.2; //ratio A_valves/A_cyl
-const double A_Valve_out = k_Aval * ACyl; // cross section of outlet valves
+const double A_Valve_out = k_Aval * ACyl * 1.5; // cross section of outlet valves
 const double A_Valve_in = k_Aval * ACyl; // cross section of inlet valves
 const int num_Valve = 2; // number of inlet and outlet valve per cylinder;
 

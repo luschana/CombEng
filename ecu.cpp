@@ -109,7 +109,7 @@ double Ecu::getFuelConsumed() const{
  * _n_Fuel = n_O2 / (Fuel_O2_req * 1.05) * _pecu->getThrottlePosition();
  */
 double Ecu::fillInjector(double p, double T){
-	double result = p*Vcyl/(R*T)*nu_Air[defs::O2]/ (Fuel_O2_req * 1.05) * _throttlePosition;
+	double result = p*Vcyl/(R*T)*nu_Air[defs::O2]/ Fuel_O2_req * _throttlePosition;
 	_n_fuel_consumed += result;
 	return result;
 }
