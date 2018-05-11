@@ -21,7 +21,6 @@
 #ifndef GASCOMPONENT_H
 #define GASCOMPONENT_H
 
-#include <stdio.h>
 #include "definitions.h"
 
 double getPressureFromRelHum(double T, double relHum);

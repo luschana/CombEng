@@ -194,12 +194,8 @@ double GasComponent::isentropicStateChange(double cmpFactor) {
 	return deltaH;
 }
 
-/*double GasComponent::isochoricStateChange(double deltaH) {
-	return deltaH;
-}*/
-
 void GasComponent::transferFrom(double dn, GasComponent &gc) {
-	if(dn > EPSILON && gc._n_g > dn){ //do not take it from an "near empty" component
+	if(dn > EPSILON && gc._n_g > dn){ //do not take it from an "near empty" component -- neg dn: turn participants
 		// remove gas from gc
 		double dH = dn* gc._cp * gc._T;
 		double cmpFactor = 1 - dn/gc._n_g;
@@ -235,6 +231,10 @@ void GasComponent::transferFrom(double dn, GasComponent &gc) {
 		}
 		_combustionStarted &= gc._combustionStarted;
 
+	}else{
+		if(dn < -EPSILON){
+			gc.transferFrom(-dn, *this);
+		}
 	}
 }
 
