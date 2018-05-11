@@ -103,10 +103,12 @@ void GasComponent::calcGasExchange(double A_crosssection, GasComponent *pgc){
 	if(A_crosssection > 0 && fabs(_p - pgc->_p)>EPSILON){
 		double deltaN = 0.0;
 		if(_p > pgc->_p){
-			deltaN = A_crosssection * pow( (_p*(_p - pgc->_p))/(2.0*_MW*R*_T) , 0.5)*Ts;
+			//deltaN = A_crosssection * pow( (_p*(_p - pgc->_p))/(2.0*_MW*R*_T) , 0.5)*Ts;
+			deltaN = A_crosssection * pow( (2.0*(_p - pgc->_p)*_MW/_v) , 0.5)*Ts;
 			pgc->transferFrom(deltaN, *this);
 		}else{
-			deltaN = A_crosssection * pow( (pgc->_p*(pgc->_p - _p))/(2.0*pgc->_MW*R*pgc->_T) , 0.5)*Ts;
+			//deltaN = A_crosssection * pow( (pgc->_p*(pgc->_p - _p))/(2.0*pgc->_MW*R*pgc->_T) , 0.5)*Ts;
+			deltaN = A_crosssection * pow( (2.0*(pgc->_p - _p)*pgc->_MW/pgc->_v) , 0.5)*Ts;
 			transferFrom(deltaN, *pgc);
 		}
 	}
@@ -214,12 +216,12 @@ void GasComponent::transferFrom(double dn, GasComponent &gc) {
 		// add to 'this'
 		_H += dH;
 		cmpFactor = dn/_n_g;
+		_MW = (_MW + cmpFactor*gc._MW)/(1+cmpFactor);
 		int i = 0;
 		for (i = 0; i < defs::Fuel+1; i++) {
 			_nu[i] = (_nu[i]+cmpFactor*gc._nu[i])/(1+cmpFactor);
 		}
 		_n_g += dn;
-		_MW = calcMolareWeight();
 
 		if(!_isContainer){
 			_H = _H * pow( (1+cmpFactor) , 1.0/(_cp/R - 1.0));

@@ -65,14 +65,10 @@ protected:
 
 
 private:
-
 	double _n_chemR[4];
-
 	double isentropicStateChange(double cmpFactor);
-	//double isochoricStateChange(double deltaH);
 	double injection(double n_Fuel);
 	double chemReaction();
-
 	double calcMolareWeight();
 	double calcMols();
 };
