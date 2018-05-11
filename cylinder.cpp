@@ -137,12 +137,12 @@ void Cylinder::run(double dPhi){
 	}
 	_gc.calcGasExchange(_pecu->getValveOut_A(_phi), _pexhaust);
 	_pintake->calcGasExchange(_pecu->getValveIn_A(_phi), &_gc);
+	calcHeatExchange(); //
 	_gc.calcStateChange(getCmpFactor() , getHxGas(), calcFuelInj());//, *_pinlet, *_pexhaust);
 	_M_g = -ACyl*(_gc.getP() - Environment::getInst()->getAmbientAir()->getP())*r_cs*sin(_phi);
-	calcHeatExchange(); //
 }
 
-double Cylinder::getCylArea(double x_pos) const {
+double Cylinder::getCylArea() const {
 	return 2*ACyl*(1.0 + (hCyl-_x_p)/r_cs); // 2 r pi h = 2 A h/r
 }
 
@@ -151,7 +151,7 @@ double Cylinder::getCylArea(double x_pos) const {
  *  gas <-> cyl. wall <-> cooling water
  */
 void Cylinder::calcHeatExchange(){
-	double hx_factor = _gc.getspecV()/(R*T_ref/p_ref) * getCylArea(hCyl - _x_p); // v_ref/v(p,T) * A [m3/mol / m3/mol * m2]
+	double hx_factor = _gc.getspecV()/(R*T_ref/p_ref) * getCylArea(); // v_ref/v(p,T) * A [m3/mol / m3/mol * m2]
 	_H_cooling = hx_a_CW * (_T_cyl - _T_CW)*Ts;
 	_H_hx_gas = hx_a_CG* hx_factor * (_T_cyl - _gc.getT())*Ts;
 	_T_cyl += (-_H_hx_gas - _H_cooling + fabs(_F_fr*_dx_p))/hx_C_W; // gas hx && friction

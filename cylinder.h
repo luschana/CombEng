@@ -64,7 +64,7 @@ private:
     Oil *_poil;
 
     void calcHeatExchange();
-    double getCylArea(double x_pos) const;
+    double getCylArea() const;
     double getCmpFactor() const;
     bool passedAngle(double alpha, double dphi) const;
     double calcFuelInj();
