@@ -66,7 +66,10 @@ void CombustionEngine::run(double w, double thrPos) {
 	}
 	Environment::getInst()->getAmbientAir()->calcGasExchange(A_intake, &_intake);
 	//_exhaust.calcGasExchange(A_exhaust, Environment::getInst()->getExhaustGas());
+	/* use amb for tests
 	Environment::getInst()->getExhaustGas()->calcGasExchange(A_exhaust, &_exhaust);
+	*/
+	Environment::getInst()->getAmbientAir()->calcGasExchange(A_exhaust, &_exhaust);
 }
 
 void CombustionEngine::setPhiSpark(double sparkAngle) {
