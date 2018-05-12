@@ -25,7 +25,7 @@
  * params: T [K], relHum [%];
  */
 double getPressureFromRelHum(double T, double relHum){
-	return pow(10, 3 + AntoinePars[0] - AntoinePars[1]/(AntoinePars[2]+T)) * relHum; // [Pa] = 10^5 [bar] * [%] / 100
+	return pow(10, 3 + WaterAntoinePars[0] - WaterAntoinePars[1]/(WaterAntoinePars[2]+T)) * relHum; // [Pa] = 10^5 [bar] * [%] / 100
 }
 
 GasComponent::GasComponent(){
@@ -99,42 +99,6 @@ GasComponent::GasComponent(double V, double T, double p, const double nu[defs::F
 }
 
 
-void GasComponent::calcGasExchange(double A_crosssection, GasComponent *pgc){
-	if(A_crosssection > 0 && fabs(_p - pgc->_p)>EPSILON){
-		double deltaN = 0.0;
-		if(_p > pgc->_p){
-			//deltaN = A_crosssection * pow( (_p*(_p - pgc->_p))/(2.0*_MW*R*_T) , 0.5)*Ts;
-			deltaN = A_crosssection * pow( (2.0*(_p - pgc->_p)*_MW/_v) , 0.5)*Ts;
-			pgc->transferFrom(deltaN, *this);
-		}else{
-			//deltaN = A_crosssection * pow( (pgc->_p*(pgc->_p - _p))/(2.0*pgc->_MW*R*pgc->_T) , 0.5)*Ts;
-			deltaN = A_crosssection * pow( (2.0*(pgc->_p - _p)*pgc->_MW/pgc->_v) , 0.5)*Ts;
-			transferFrom(deltaN, *pgc);
-		}
-	}
-}
-
-void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_Fuel){
-		//,const GasComponent &inlet, GasComponent &exhaust){
-	if(_T > Fuel_T_Autoignition) {
-		_combustionStarted = true;
-	}
-	double deltaH = H_cooling;
-	deltaH += isentropicStateChange(cmpFactor);
-	deltaH += injection(n_Fuel);
-	deltaH += chemReaction();
-	double dT_est = _T*deltaH/_H; // == dH/(n*cp)
-	if(_T + dT_est < 200) {
-		dT_est = 200 - _T; //debugging / Fangnetz -- should never occur!!
-		deltaH = dT_est * _cp * _n_g;
-	}
-	_cp = Shomate::getInst()->getHeatCapacity(_T + dT_est, _nu);
-	_MW = getMolareWeight();
-	_H += deltaH;
-	_T = _H/(_n_g * _cp);
-	_p = R*_T/_v;
-}
-
 void GasComponent::setCombustionStarted(bool combustionStarted) {
 	_combustionStarted = combustionStarted;
 }
@@ -179,10 +143,47 @@ double GasComponent::getV() const {
 	return _V;
 }
 
+void GasComponent::calcGasExchange(double A_crosssection, GasComponent *pgc){
+	if(A_crosssection > 0 && fabs(_p - pgc->_p)>EPSILON){
+		double deltaN = 0.0;
+		if(_p > pgc->_p){
+			//deltaN = A_crosssection * pow( (_p*(_p - pgc->_p))/(2.0*_MW*R*_T) , 0.5)*Ts;
+			deltaN = A_crosssection * pow( (2.0*(_p - pgc->_p)*_MW/_v) , 0.5)*Ts;
+			pgc->transferFrom(deltaN, *this);
+		}else{
+			//deltaN = A_crosssection * pow( (pgc->_p*(pgc->_p - _p))/(2.0*pgc->_MW*R*pgc->_T) , 0.5)*Ts;
+			deltaN = A_crosssection * pow( (2.0*(pgc->_p - _p)*pgc->_MW/pgc->_v) , 0.5)*Ts;
+			transferFrom(deltaN, *pgc);
+		}
+	}
+}
+
+void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_Fuel){
+		//,const GasComponent &inlet, GasComponent &exhaust){
+	if(_T > Fuel_T_Autoignition) {
+		_combustionStarted = true;
+	}
+	double deltaH = H_cooling;
+	deltaH += isentropicStateChange(cmpFactor);
+	deltaH += injection(n_Fuel);
+	deltaH += chemReaction();
+	double dT_est = _T*deltaH/_H; // == dH/(n*cp)
+	if(_T + dT_est < 200) {
+		dT_est = 200 - _T; //debugging / Fangnetz -- should never occur!!
+		deltaH = dT_est * _cp * _n_g; // changed T&p to be nan instead of -0;
+	}
+	_cp = Shomate::getInst()->getHeatCapacity(_T + dT_est, _nu);
+	_MW = getMolareWeight();
+	_H += deltaH;
+	_T = _H/(_n_g * _cp);
+	_p = R*_T/_v;
+}
+
 // --- private methods
 
 /*
  * cmpFactor: V_i/V_(i-1)
+ * calculates the entropy difference but does not change the state values
  */
 double GasComponent::isentropicStateChange(double cmpFactor) {
 	double deltaH = 0.0;

@@ -88,7 +88,7 @@ const double ChemRectionRate[4] = {50.0, 40.0, 10.0, 3.0}; // reaction rate at T
 //const double ChemRectionRate[4] = {0.40, 0.026, 0.026, 0.026}; // reaction rate at T&p_ref
 //const double ChemRectionRate[4] = {30.0, 30.0, 30.00, 15.0}; // reaction rate at T&p_ref
 
-const double AntoinePars[3] = {5.40221, 1838.675, -31.737}; // Antoine pars for 273 <= T <= 303 K
+const double WaterAntoinePars[3] = {5.40221, 1838.675, -31.737}; // Antoine pars of Water for 273 <= T <= 303 K
 
 const ShDataEntry ShData_N2[1] = {
 		ShDataEntry(298.0, 6000.0,26.092, 8.218801, -1.976141, 0.159274, 0.044434, -7.98923, 221.02, 0.0)};
@@ -103,11 +103,19 @@ const ShDataEntry ShData_CO2[2] = {
 const ShDataEntry ShData_CO[2] = {
 		ShDataEntry(298.0, 1300.0, 25.56759, 6.09613, 4.054656, -2.671301, 0.131021, -118.0089, 227.3665, -110527.1),
 		ShDataEntry(1300.0, 6000.0, 35.1507, 1.300095, -0.205921, 0.01355, -3.28278, -127.8375, 231.712, -110527.1)};
-const ShDataEntry ShData_Fuel[1] = {
+//Octane
+const ShDataEntry ShData_Fuel[2] = {
+		ShDataEntry(273.15, 1500.00, -15.099746, 812.885005, -470.100290, 104.388739, 0.0, 0.0, 0.0, -208700.0),
+		ShDataEntry(1500.0, 6000.0, 497.90, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -208700.0)};
+//Decane decane_cp.dat -- parameter fit from NIST cp vals
+const ShDataEntry ShData_Fuel[2] = {
+ShDataEntry(273.15, 1500.00, -23.451399, 1034.734569, -620.745347, 141.993960, 0.0, 0.0, 0.0, -249700.0),
+ShDataEntry(1500.00, 6000.00, 610.860000, 0.000000, 0.000000, 0.000000, 0.0, 0.0, 0.0, -249700.0)};
+/*const ShDataEntry ShData_Fuel[1] = {
 		ShDataEntry(298.0, 6000.0, 351.455, 279.288, 0.0, 0.0, 0.0, 0.0, 0.0, -249700.0)}; // Decane; only Hf for C10H22, others for Octane
-		//ShDataEntry(298.0, 6000.0, 351.455, 279.288, 0.0, 0.0, 0.0, 0.0, 0.0, -208700.0)}; //Octane
-
-
+		//ShDataEntry(298.0, 6000.0, 351.455, 279.288, 0.0, 0.0, 0.0, 0.0, 0.0, -208700.0)}; //Octane;
+		//ShDataEntry(273.15, 1500.00, -15.099746, 812.885005, -470.100290, 104.388739, 0.0, 0.0, 0.0, 0.0)
+*/
 const ShData ShDataDB[defs::Fuel+1] = {ShData(1, ShData_N2), ShData(1, ShData_O2),
 		ShData(2, ShData_H2O), ShData(2, ShData_CO2), ShData(2, ShData_CO),
 		ShData(), ShData(), ShData(1, ShData_Fuel)
