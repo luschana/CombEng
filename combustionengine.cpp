@@ -1,6 +1,6 @@
 /*
- * <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) 2014  Alex Luschan <a.luschan@inode.at>
+ * Time slice based calculation of a combustion engine;
+ * Copyright (C) 2014  Alex Luschan <alexander.luschan@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ void CombustionEngine::run(double w, double thrPos) {
 	_w = w;
 	_cnt++;
 	for (i = 0; i < Ncyl; i++) {
-		_cyl[i].calcCylinder(dphi);
+		_cyl[i].run(dphi);
 		_M_Shaft += _cyl[i].getM_G() + _cyl[i].getM_P();
 	}
 	Environment::getInst()->getAmbientAir()->calcGasExchange(A_intake, &_intake);

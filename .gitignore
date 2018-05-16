@@ -1,13 +1,17 @@
-.*proj*
-*~
+*.log
 Debug/
 Release/
+.project
+.cproject
 .settings/
 slprj/
-build/
-*_rtw/
-ept/
-Deployment*/
-*.mex*
+temp/
+*grt_rt*
+*.mexa64
+*.slx*
+*.m
+*.mat
+
+*~
 
 #eof
