@@ -17,8 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#include <stdio.h>
-
 #include "shomate.h"
 #include "definitions.h"
 
@@ -141,6 +139,8 @@ Shomate::Shomate(){
 
 double Shomate::getHeatCapacity(double T, const double *pn_def){
   double cp = 0.0;
+  if (T < Shomate_T_min) T=Shomate_T_min;
+  if (T > Shomate_T_max) T=Shomate_T_max;
   double t = T/1000.0;
   int i = 0;
   _pActShParams->reset();

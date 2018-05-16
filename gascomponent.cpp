@@ -248,7 +248,7 @@ double GasComponent::injection(double n_Fuel){
 	double deltaH = 0.0;
 	double k = 1.0;
 	if(n_Fuel > EPSILON){
-		deltaH = n_Fuel * (Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
+		deltaH = n_Fuel * (-Fuel_deltaH_vap + Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
 		k = n_Fuel/_n_g;
 		_nu[defs::Fuel] += k;
 		_p *= (1+k);

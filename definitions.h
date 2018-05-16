@@ -21,9 +21,15 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-//#include <stdio.h>
 #include <math.h>
 #include "shomate.h"
+
+/* Calculate the enthalpy of vaporization
+ * ΔvapH = A exp(-αTr) (1 − Tr)β
+ *  ΔvapH = Enthalpy of vaporization (at saturation pressure) (J/mol)
+ *  Tr = reduced temperature (T / Tc)
+ */
+double getFuelVaporizationEnthaly(double T, double Tmin, double Tmax, double A, double a, double b, double Tc);
 
 // calc consts
 const double Ts = 10.0*pow(10.0,-6.0); //[s] cycle time
@@ -44,13 +50,13 @@ const double d_Piston = pow(10.0,-4.0); // distance between piston and cylinder 
 const double ACyl = pow(r_cs,2.0) * M_PI;
 const double hCyl = 2.0*r_cs*(1.0+1.0/chi); //[m] height from lower dead center to cylinder head
 // fluid dynamics
-const double k_Aval = 0.25; //ratio A_valves/A_cyl
-const double A_Valve_out = k_Aval * ACyl * 1.5; // cross section of outlet valves
+const double k_Aval = 0.2; //ratio A_valves/A_cyl
+const double A_Valve_out = k_Aval * ACyl; // cross section of outlet valves
 const double A_Valve_in = k_Aval * ACyl; // cross section of inlet valves
 const int num_Valve = 2; // number of inlet and outlet valve per cylinder;
 
-const double A_intake = A_Valve_in;// * (1.0+Ncyl/2.0); // cross section of intake
-const double A_exhaust = A_Valve_out; // (min.) cross section of the exhaust gas pipe
+const double A_intake = A_Valve_in * (1.0+Ncyl/2.0); // cross section of intake
+const double A_exhaust = A_intake; // (min.) cross section of the exhaust gas pipe
 const double V_intake = Vcyl*(10.0+Ncyl*2.0); //[m3] volume of intake manifold
 const double V_exhaust = V_intake*2.0; //[m3] volume of exhaust pipe
 // heat transfer
@@ -89,6 +95,16 @@ const double ChemRectionRate[4] = {50.0, 40.0, 10.0, 3.0}; // reaction rate at T
 //const double ChemRectionRate[4] = {30.0, 30.0, 30.00, 15.0}; // reaction rate at T&p_ref
 
 const double WaterAntoinePars[3] = {5.40221, 1838.675, -31.737}; // Antoine pars of Water for 273 <= T <= 303 K
+/*Enthalpy of vaporization:
+ * dH_vap = A* exp( -a * T/Tc)(1-T/Tc)^b
+ * subst	Tmin	Tmax	A [J/mol]	a		b		Tc
+ * Octane	298		426		58.46		0.1834	0.3324	568.8
+ * Decane	298		444		74.38		=b		0.3238	617.4
+ */
+const double Fuel_deltaH_vap = getFuelVaporizationEnthaly(T_ref, 298, 426, 58460.0, 0.1834, 0.3324, 568.8);
+
+const double Shomate_T_min = 298.0; // lower "limit" of temperature range for Shomate data
+const double Shomate_T_max = 6000.0; // upper "limit" of temperature range for Shomate data
 
 const ShDataEntry ShData_N2[1] = {
 		ShDataEntry(298.0, 6000.0,26.092, 8.218801, -1.976141, 0.159274, 0.044434, -7.98923, 221.02, 0.0)};
