@@ -21,9 +21,15 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-//#include <stdio.h>
 #include <math.h>
 #include "shomate.h"
+
+/* Calculate the enthalpy of vaporization
+ * ΔvapH = A exp(-αTr) (1 − Tr)β
+ *  ΔvapH = Enthalpy of vaporization (at saturation pressure) (J/mol)
+ *  Tr = reduced temperature (T / Tc)
+ */
+double getFuelVaporizationEnthaly(double T, double Tmin, double Tmax, double A, double a, double b, double Tc);
 
 // calc consts
 const double Ts = 10.0*pow(10.0,-6.0); //[s] cycle time
@@ -88,8 +94,18 @@ const double ChemRectionRate[4] = {50.0, 40.0, 10.0, 3.0}; // reaction rate at T
 //const double ChemRectionRate[4] = {0.40, 0.026, 0.026, 0.026}; // reaction rate at T&p_ref
 //const double ChemRectionRate[4] = {30.0, 30.0, 30.00, 15.0}; // reaction rate at T&p_ref
 
-const double AntoinePars[3] = {5.40221, 1838.675, -31.737}; // Antoine pars for 273 <= T <= 303 K
+/*Enthalpy of vaporization:
+ * dH_vap = A* exp( -a * T/Tc)(1-T/Tc)^b
+ * subst	Tmin	Tmax	A [J/mol]	a		b		Tc
+ * Octane	298		426		58.46		0.1834	0.3324	568.8
+ * Decane	298		444		74.38		=b		0.3238	617.4
+ */
+const double Fuel_deltaH_vap = getFuelVaporizationEnthaly(T_ref, 298, 426, 58460.0, 0.1834, 0.3324, 568.8);
 
+const double Water_AntoinePars[3] = {5.40221, 1838.675, -31.737}; // Antoine pars of Water for 273 <= T <= 303 K
+
+const double Shomate_T_min = 298.0; // lower "limit" of temperature range for Shomate data
+const double Shomate_T_max = 6000.0; // upper "limit" of temperature range for Shomate data
 const ShDataEntry ShData_N2[1] = {
 		ShDataEntry(298.0, 6000.0,26.092, 8.218801, -1.976141, 0.159274, 0.044434, -7.98923, 221.02, 0.0)};
 const ShDataEntry ShData_O2[1] = {
@@ -106,7 +122,6 @@ const ShDataEntry ShData_CO[2] = {
 const ShDataEntry ShData_Fuel[1] = {
 		ShDataEntry(298.0, 6000.0, 351.455, 279.288, 0.0, 0.0, 0.0, 0.0, 0.0, -249700.0)}; // Decane; only Hf for C10H22, others for Octane
 		//ShDataEntry(298.0, 6000.0, 351.455, 279.288, 0.0, 0.0, 0.0, 0.0, 0.0, -208700.0)}; //Octane
-
 
 const ShData ShDataDB[defs::Fuel+1] = {ShData(1, ShData_N2), ShData(1, ShData_O2),
 		ShData(2, ShData_H2O), ShData(2, ShData_CO2), ShData(2, ShData_CO),

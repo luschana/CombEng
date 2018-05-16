@@ -25,7 +25,7 @@
  * params: T [K], relHum [%];
  */
 double getPressureFromRelHum(double T, double relHum){
-	return pow(10, 3 + AntoinePars[0] - AntoinePars[1]/(AntoinePars[2]+T)) * relHum; // [Pa] = 10^5 [bar] * [%] / 100
+	return pow(10, 3 + Water_AntoinePars[0] - Water_AntoinePars[1]/(Water_AntoinePars[2]+T)) * relHum; // [Pa] = 10^5 [bar] * [%] / 100
 }
 
 GasComponent::GasComponent(){
@@ -242,7 +242,7 @@ double GasComponent::injection(double n_Fuel){
 	double deltaH = 0.0;
 	double k = 1.0;
 	if(n_Fuel > EPSILON){
-		deltaH = n_Fuel * (Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
+		deltaH = n_Fuel * (-Fuel_deltaH_vap + Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
 		k = n_Fuel/_n_g;
 		_nu[defs::Fuel] += k;
 		_p *= (1+k);
