@@ -6,12 +6,15 @@ Release/
 .settings/
 slprj/
 temp/
+ept/
+build/
+Deploy*/
+*_rtw/
 *grt_rt*
-*.mexa64
+*.mex*
 *.slx*
 *.m
 *.mat
-
 *~
 
 #eof
