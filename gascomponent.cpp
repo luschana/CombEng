@@ -173,7 +173,17 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
 		setNu(pSrc);
 		_cp = pSrc->_cp;
 		_MW = pSrc->_MW;
-		// _v = pSrc->_v; //R T / p...
+		// _v = pSrc->_v; //R*T/p...
+	}
+}
+void GasComponent::calcStateChange(bool add, const GasComponent *pgc){
+	double dH = 0.0;
+	if(fabs(pgc->_n_g)>EPSILON){
+		if(add){
+			dH=addGC(pgc);
+		}else{
+			dH=removeGC(pgc);
+		}
 	}
 }
 
@@ -182,13 +192,23 @@ void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_
 		_combustionStarted = true;
 	}
 	double deltaH = H_cooling;
-
-	//gas transfer....
-
-	deltaH += isentropicStateChange(cmpFactor);
+	if(pExhaust->_n_g > 0){
+		deltaH += removeGC(pExhaust);
+	}else{
+		deltaH += addGC(pExhaust);
+	}
+	if(pIntake->_n_g > 0){
+		deltaH += addGC(pIntake);
+	}else{
+		deltaH += removeGC(pIntake);
+	}
 	deltaH += injection(n_Fuel);
 	deltaH += chemReaction();
-	double dT_est = _T*deltaH/_H; // == dH/(n*cp)
+	_v=_V/_n_g;
+	deltaH += isentropicStateChange(cmpFactor); // changes v&V
+
+
+	double dT_est = deltaH/(_n_g*_cp); // == dH/(n*cp)
 	if(_T + dT_est < 200) {
 		dT_est = 200 - _T; //debugging / Fangnetz -- should never occur!!
 		deltaH = dT_est * _cp * _n_g; // changed T&p to be nan instead of -0;
@@ -202,9 +222,54 @@ void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_
 
 // --- private methods
 
+double GasComponent::removeGC(const GasComponent *pgc){
+	double dH = 0.0;
+	double dn = fabs(pgc->_n_g);
+	if(dn>0){
+		if(_n_g > dn){
+			_n_g -= dn;
+			dH = -dn*_cp*_T;
+		}else{ // it should be more removed than there's available?!?
+			dH = -(_n_g-EPSILON)*_cp*_T;
+			_n_g = EPSILON;
+		}
+	}
+	return dH;
+}
+
 /*
+ * calc the missing enthalpy to bring the gc to gas temp and mix the moles
+ */
+double GasComponent::addGC(const GasComponent *pgc){
+	double dH = 0.0;
+	double dn = fabs(pgc->_n_g);
+	if(dn>0){
+		// nonsense: adds just the enthalpy of gc at its current temp // bring gc to _T (H(T) = n cp(T) T = H(T_old) + dH -- dH was missing ==> neg. sign
+		dH = pgc->_H;// - dn*Shomate::getInst()->getHeatCapacity(_T, pgc->_nu)*_T;
+		for (int i = 0; i<defs::Fuel+1; i++) {
+			_nu[i] = (_nu[i]*_n_g + pgc->_nu[i]*dn)/(_n_g + dn);
+		}
+	}
+	return dH;
+}
+
+/*
+ * calc the missing enthalpy to bring the fuel to gas temp and mix the moles
+ */
+double GasComponent::injection(double n_Fuel){
+	double deltaH = 0.0;
+	double k = 1.0;
+	if(n_Fuel > EPSILON){
+		deltaH = n_Fuel * (-Fuel_deltaH_vap + Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
+		k = n_Fuel/_n_g;
+		_nu[defs::Fuel] += k;
+		normalizeMols();
+	}
+	return deltaH;
+}
+
+/* calculates the enthalpy difference but does not change the state values
  * cmpFactor: V_i/V_(i-1)
- * calculates the entropy difference but does not change the state values
  */
 double GasComponent::isentropicStateChange(double cmpFactor) {
 	double deltaH = 0.0;
@@ -217,64 +282,6 @@ double GasComponent::isentropicStateChange(double cmpFactor) {
 		}else{ // compression
 			deltaH /= eta_is;
 		}
-	}
-	return deltaH;
-}
-
-/*void GasComponent::transferFrom(double dn, GasComponent &gc) {
-	if(dn > EPSILON && gc._n_g > dn){ //do not take it from an "near empty" component -- neg dn: turn participants
-		// remove gas from gc
-		double dH = dn* gc._cp * gc._T;
-		double cmpFactor = 1 - dn/gc._n_g;
-		gc._H -= dH;
-		gc._n_g -= dn;
-
-		if(!gc._isContainer){ //isentropic expansion (V const)
-			gc._H = gc._H * pow(cmpFactor, 1.0/(gc._cp/R - 1.0));
-			gc._T = gc._H/(gc._n_g * gc._cp);
-			gc._v = gc._V/gc._n_g;
-			gc._p = R*gc._T / gc._v;
-		}else{ //isobaric expansion (p,T,v const)
-			gc._V *= cmpFactor;
-		}
-
-		// add to 'this'
-		_H += dH;
-		cmpFactor = dn/_n_g;
-		_MW = (_MW + cmpFactor*gc._MW)/(1+cmpFactor);
-		int i = 0;
-		for (i = 0; i < defs::Fuel+1; i++) {
-			_nu[i] = (_nu[i]+cmpFactor*gc._nu[i])/(1+cmpFactor);
-		}
-		_n_g += dn;
-
-		if(!_isContainer){
-			_H = _H * pow( (1+cmpFactor) , 1.0/(_cp/R - 1.0));
-			_T = _H/(_n_g * _cp);
-			_v = _V/_n_g;
-			_p = R*_T / _v;
-		}else{
-			_V *= (1+cmpFactor);
-		}
-		_combustionStarted &= gc._combustionStarted;
-
-	}else{
-		if(dn < -EPSILON){
-			gc.transferFrom(-dn, *this);
-		}
-	}
-}*/
-
-double GasComponent::injection(double n_Fuel){
-	double deltaH = 0.0;
-	double k = 1.0;
-	if(n_Fuel > EPSILON){
-		deltaH = n_Fuel * (-Fuel_deltaH_vap + Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
-		k = n_Fuel/_n_g;
-		_nu[defs::Fuel] += k;
-		_p *= (1+k);
-		normalizeMols();
-		_v = _V / _n_g;
 	}
 	return deltaH;
 }
@@ -306,7 +313,6 @@ double GasComponent::chemReaction(){
 		_nu[defs::CO2]  += _n_chemR[3];
 		_nu[defs::O2]   -= 0.5*(_n_chemR[1] + _n_chemR[2] + _n_chemR[3]);
 		normalizeMols();
-		_v = _V / _n_g;
 		if(_nu[defs::O2] < EPSILON ||
 				( _nu[defs::H2] < EPSILON && _nu[defs::C] < EPSILON && _nu[defs::CO] < EPSILON && _nu[defs::Fuel] < EPSILON)){
 			_combustionStarted = false;
@@ -358,4 +364,48 @@ void GasComponent::setNu(const GasComponent *pSrc){
 		_nu[i] = pSrc->_nu[i];
 	}
 }
+
+/*void GasComponent::transferFrom(double dn, GasComponent &gc) {
+	if(dn > EPSILON && gc._n_g > dn){ //do not take it from an "near empty" component -- neg dn: turn participants
+		// remove gas from gc
+		double dH = dn* gc._cp * gc._T;
+		double cmpFactor = 1 - dn/gc._n_g;
+		gc._H -= dH;
+		gc._n_g -= dn;
+
+		if(!gc._isContainer){ //isentropic expansion (V const)
+			gc._H = gc._H * pow(cmpFactor, 1.0/(gc._cp/R - 1.0));
+			gc._T = gc._H/(gc._n_g * gc._cp);
+			gc._v = gc._V/gc._n_g;
+			gc._p = R*gc._T / gc._v;
+		}else{ //isobaric expansion (p,T,v const)
+			gc._V *= cmpFactor;
+		}
+
+		// add to 'this'
+		_H += dH;
+		cmpFactor = dn/_n_g;
+		_MW = (_MW + cmpFactor*gc._MW)/(1+cmpFactor);
+		int i = 0;
+		for (i = 0; i < defs::Fuel+1; i++) {
+			_nu[i] = (_nu[i]+cmpFactor*gc._nu[i])/(1+cmpFactor);
+		}
+		_n_g += dn;
+
+		if(!_isContainer){
+			_H = _H * pow( (1+cmpFactor) , 1.0/(_cp/R - 1.0));
+			_T = _H/(_n_g * _cp);
+			_v = _V/_n_g;
+			_p = R*_T / _v;
+		}else{
+			_V *= (1+cmpFactor);
+		}
+		_combustionStarted &= gc._combustionStarted;
+
+	}else{
+		if(dn < -EPSILON){
+			gc.transferFrom(-dn, *this);
+		}
+	}
+}*/
 

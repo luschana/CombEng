@@ -38,9 +38,14 @@ public:
 	 */
 	//void calcGasExchange(double A_crosssection, GasComponent *pgc);
 
+	/*
+	 * calc the gc that flows from in to out
+	 */
 	void calcFlow(double phi, GasComponent* pIn, GasComponent* pOut);
 
 	void calcStateChange(double cmpFactor, double H_cooling, double n_Fuel, const GasComponent *pIntake, const GasComponent *pExhaust);
+	void calcStateChange(bool add, const GasComponent *pgc);
+
 //setter methods
 	void setCombustionStarted(bool combustionStarted);
 	//void setMols(double n);
@@ -76,6 +81,8 @@ private:
 	double calcMolareWeight();
 	double calcMols();
 	void setNu(const GasComponent *pSrc);
+	double removeGC(const GasComponent *pgc);
+	double addGC(const GasComponent *pgc);
 };
 
 #endif // GASCOMPONENT_H

@@ -147,7 +147,7 @@ void Cylinder::run(double dPhi){
 		_gc.setCombustionStarted(true);
 	}
 	// all together to be changed in the gas component: molare and heat transfer, chem. reaction, compression/expansion, ...
-	_gc.calcStateChange(getCmpFactor() , getHxGas(), calcFuelInj(), _pValveIn->getGasComponent(), _pValveOut->getGasComponent());
+	_gc.calcStateChange(getCmpFactor(), getHxGas(), calcFuelInj(), _pValveIn->getGasComponent(), _pValveOut->getGasComponent());
 	_M_g = -ACyl*(_gc.getP() - Environment::getInst()->getAmbientAir()->getP())*r_cs*sin(_phi);
 }
 
