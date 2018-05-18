@@ -63,7 +63,3 @@ Valve::Valve(){
 	_r = 0.0;
 	_stroke = 0.0;
 }
-
-Valve::~Valve(){
-
-}

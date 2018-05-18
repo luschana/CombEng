@@ -36,6 +36,7 @@ public:
 	 * remove mols from higher pressured component and mix it to the other
 	 */
 	void calcGasExchange(double A_crosssection, GasComponent *pgc);
+
 	void calcStateChange(double cmpFactor, double H_cooling, double n_Fuel);//, const GasComponent &inlet, GasComponent &exhaust);
 //setter methods
 	void setCombustionStarted(bool combustionStarted);
@@ -72,6 +73,5 @@ private:
 	double calcMolareWeight();
 	double calcMols();
 };
-
 
 #endif // GASCOMPONENT_H

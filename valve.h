@@ -15,7 +15,6 @@ class Valve{
 public:
 	Valve();
 	Valve(double A_Valves, int num_Valves, double dphi_open, double dphi_close);
-	~Valve();
 	double getPhiM();
 	double getDPhi();
 	void setPhiM(double phi_M);
@@ -28,6 +27,7 @@ private:
 	double _r;			// radius of a single valve
 	double _stroke;		// stroke of valve(s)
 	int _num;			// number of valves
+
 
 	double getActStroke(double phi);
 };
