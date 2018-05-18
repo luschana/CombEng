@@ -143,7 +143,7 @@ double GasComponent::getV() const {
 	return _V;
 }
 
-void GasComponent::calcGasExchange(double A_crosssection, GasComponent *pgc){
+/*void GasComponent::calcGasExchange(double A_crosssection, GasComponent *pgc){
 	if(A_crosssection > 0 && fabs(_p - pgc->_p)>EPSILON){
 		double deltaN = 0.0;
 		if(_p > pgc->_p){
@@ -156,14 +156,35 @@ void GasComponent::calcGasExchange(double A_crosssection, GasComponent *pgc){
 			transferFrom(deltaN, *pgc);
 		}
 	}
+}*/
+
+void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasComponent* pOut){
+	_n_g=0.0;
+	if(A_crosssection > EPSILON){
+		GasComponent *pSrc = pIn;
+		GasComponent *pDest = pOut;
+		if(pIn->_p < pOut->_p){
+			pSrc = pOut;
+			pDest = pIn;
+		}
+		_n_g = A_crosssection * pow( (2.0*(pIn->_p - pOut->_p)*pSrc->_MW/pSrc->_v) , 0.5)*Ts; // neg. flow ok
+		_p = pDest->_p;
+		_T = pSrc->_T;
+		setNu(pSrc);
+		_cp = pSrc->_cp;
+		_MW = pSrc->_MW;
+		// _v = pSrc->_v; //R T / p...
+	}
 }
 
-void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_Fuel){
-		//,const GasComponent &inlet, GasComponent &exhaust){
+void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_Fuel, const GasComponent *pIntake, const GasComponent *pExhaust){
 	if(_T > Fuel_T_Autoignition) {
 		_combustionStarted = true;
 	}
 	double deltaH = H_cooling;
+
+	//gas transfer....
+
 	deltaH += isentropicStateChange(cmpFactor);
 	deltaH += injection(n_Fuel);
 	deltaH += chemReaction();
@@ -200,7 +221,7 @@ double GasComponent::isentropicStateChange(double cmpFactor) {
 	return deltaH;
 }
 
-void GasComponent::transferFrom(double dn, GasComponent &gc) {
+/*void GasComponent::transferFrom(double dn, GasComponent &gc) {
 	if(dn > EPSILON && gc._n_g > dn){ //do not take it from an "near empty" component -- neg dn: turn participants
 		// remove gas from gc
 		double dH = dn* gc._cp * gc._T;
@@ -242,7 +263,7 @@ void GasComponent::transferFrom(double dn, GasComponent &gc) {
 			gc.transferFrom(-dn, *this);
 		}
 	}
-}
+}*/
 
 double GasComponent::injection(double n_Fuel){
 	double deltaH = 0.0;
@@ -332,4 +353,9 @@ void GasComponent::normalizeMols(){
 	_MW = calcMolareWeight();
 }
 
+void GasComponent::setNu(const GasComponent *pSrc){
+	for (int i = 0; i < defs::Fuel+1; i++) {
+		_nu[i] = pSrc->_nu[i];
+	}
+}
 

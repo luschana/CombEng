@@ -16,6 +16,7 @@ Valve::Valve(double A_Valves, int num_Valves, double phi_open, double phi_close)
 	_num = num_Valves;
 	_r = sqrt(A_Valves/((double)num_Valves * M_PI));
 	_stroke = _r*2;
+	_pgc = new GasComponent();
 }
 
 double Valve::getPhiM() {
@@ -46,6 +47,17 @@ double Valve::getCrosssection(double phi) {
 	return result;
 }
 
+/**
+ * init the calculation of the transfer component -- do this for closed valve too...
+ */
+void Valve::calcFlow(double phi, GasComponent* pIn, GasComponent* pOut) {
+	_pgc->calcFlow(getCrosssection(phi), pIn, pOut);
+}
+
+const GasComponent* Valve::getGasComponent() {
+	return _pgc;
+}
+
 double Valve::getActStroke(double phi){
 	double result = 0.0;
 	if (!( _phi_m + _dphi > 4*M_PI && phi < M_PI)) { // closing might happen in between 0.. (<M_PI)
@@ -62,4 +74,5 @@ Valve::Valve(){
 	_num = 1;
 	_r = 0.0;
 	_stroke = 0.0;
+	_pgc = new GasComponent();
 }

@@ -39,6 +39,8 @@ Cylinder::Cylinder(){
 	_pexhaust = NULL;
 	_pecu = NULL;
 	_poil = NULL;
+	_pValveIn = NULL;
+	_pValveOut = NULL;
 }
 
 Cylinder::Cylinder(double phi0, GasComponent *pinlet, GasComponent *pexhaust, Ecu *pecu, Oil *poil){
@@ -60,6 +62,8 @@ Cylinder::Cylinder(double phi0, GasComponent *pinlet, GasComponent *pexhaust, Ec
 	_pexhaust = pexhaust;
 	_pecu = pecu;
 	_poil = poil;
+	_pValveIn = new Valve(A_Valve_in, num_Valve, _pecu->getPhiValveInOpen(), _pecu->getPhiValveInClose());
+	_pValveOut = new Valve(A_Valve_out, num_Valve, _pecu->getPhiValveOutOpen(), _pecu->getPhiValveOutClose());
 }
 
 void Cylinder::setT_CW(double T_CW) {
@@ -122,6 +126,13 @@ void Cylinder::run(double dPhi){
 	if(_phi < 0.0){
 		_phi += 4.0*M_PI;
 	}
+	// gas transfer
+	_pValveIn->calcFlow(_phi, _pintake, &_gc);
+	_pValveOut->calcFlow(_phi, &_gc, _pexhaust);
+	// heat transfer
+	calcHeatExchange();
+
+	// mech. state change
 	_dx_p = r_cs*( sqrt(pow(l2r,2.0) - pow(sin(_phi),2.0)) - cos(_phi) -(l2r-1.0)) -_x_p; // change in x pos (from 0)
 	_x_p += _dx_p;
 	_dv_p = _v_p - _dx_p/Ts;
@@ -135,10 +146,8 @@ void Cylinder::run(double dPhi){
 	if(passedAngle(_pecu->getPhiSpark(), dPhi)){
 		_gc.setCombustionStarted(true);
 	}
-	_gc.calcGasExchange(_pecu->getValveOut_A(_phi), _pexhaust);
-	_pintake->calcGasExchange(_pecu->getValveIn_A(_phi), &_gc);
-	calcHeatExchange(); //
-	_gc.calcStateChange(getCmpFactor() , getHxGas(), calcFuelInj());//, *_pinlet, *_pexhaust);
+	// all together to be changed in the gas component: molare and heat transfer, chem. reaction, compression/expansion, ...
+	_gc.calcStateChange(getCmpFactor() , getHxGas(), calcFuelInj(), _pValveIn->getGasComponent(), _pValveOut->getGasComponent());
 	_M_g = -ACyl*(_gc.getP() - Environment::getInst()->getAmbientAir()->getP())*r_cs*sin(_phi);
 }
 

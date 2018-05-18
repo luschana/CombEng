@@ -15,15 +15,14 @@ class Ecu{
 
 public:
 	Ecu();
-	double getValveOut_A(double phi);
-	double getValveIn_A(double phi);
-//	double getPhiValveInClose() const;
+	double getPhiValveInOpen();
+	double getPhiValveInClose();
+	double getPhiValveOutOpen();
+	double getPhiValveOutClose();
+
 	void setPhiValveInClose(double phiValveInClose);
-//	double getPhiValveInOpen() const;
 	void setPhiValveInOpen(double phiValveInOpen);
-//	double getPhiValveOutClose() const;
 	void setPhiValveOutClose(double phiValveOutClose);
-//	double getPhiValveOutOpen() const;
 	void setPhiValveOutOpen(double phiValveOutOpen);
 
 	double getPhiSpark() const;
@@ -41,7 +40,6 @@ private:
     double _phiInjection;
     double _throttlePosition;
 	double _w;
-    Valve _valve_exh, _valve_inl;
     double _n_fuel_consumed;
 
 };

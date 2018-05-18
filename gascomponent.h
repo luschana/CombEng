@@ -32,12 +32,15 @@ public:
 	GasComponent(double V, double T, double p);
 	GasComponent(double V, double T, double p, const double nu[defs::Fuel+1]);
 	GasComponent(double V, double T, double p, const double nu[defs::Fuel+1], bool isContainer);
+
 	/*
 	 * remove mols from higher pressured component and mix it to the other
 	 */
-	void calcGasExchange(double A_crosssection, GasComponent *pgc);
+	//void calcGasExchange(double A_crosssection, GasComponent *pgc);
 
-	void calcStateChange(double cmpFactor, double H_cooling, double n_Fuel);//, const GasComponent &inlet, GasComponent &exhaust);
+	void calcFlow(double phi, GasComponent* pIn, GasComponent* pOut);
+
+	void calcStateChange(double cmpFactor, double H_cooling, double n_Fuel, const GasComponent *pIntake, const GasComponent *pExhaust);
 //setter methods
 	void setCombustionStarted(bool combustionStarted);
 	//void setMols(double n);
@@ -61,7 +64,7 @@ protected:
 	bool _combustionStarted;
 	bool _isContainer;
 
-	void transferFrom(double n, GasComponent &gc);
+	//void transferFrom(double n, GasComponent &gc);
 	void normalizeMols();
 
 
@@ -72,6 +75,7 @@ private:
 	double chemReaction();
 	double calcMolareWeight();
 	double calcMols();
+	void setNu(const GasComponent *pSrc);
 };
 
 #endif // GASCOMPONENT_H

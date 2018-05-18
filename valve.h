@@ -9,6 +9,7 @@
 #define VALVE_H_
 
 #include "definitions.h"
+#include "gascomponent.h"
 
 class Valve{
 
@@ -20,6 +21,8 @@ public:
 	void setPhiM(double phi_M);
 	void setDPhi(double d_Phi);
 	double getCrosssection(double phi);
+	void calcFlow(double phi, GasComponent *pIn, GasComponent *pOut);
+	const GasComponent *getGasComponent();
 
 private:
 	double _phi_m;		// angle of middle position of camshaft (in means of crankshaft working cycle)
@@ -27,7 +30,7 @@ private:
 	double _r;			// radius of a single valve
 	double _stroke;		// stroke of valve(s)
 	int _num;			// number of valves
-
+	GasComponent *_pgc;	// GasComponent to hold the floating trough gas
 
 	double getActStroke(double phi);
 };

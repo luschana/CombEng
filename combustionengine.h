@@ -65,6 +65,8 @@ private:
 	double _phiCyl[Ncyl]; // angle offset off cylinders
 	GasComponent _intake;
 	GasComponent _exhaust;
+	Valve *_pValveIntake;
+	Valve *_pValveExhaust;
 	double _T_CW;
 	double _M_Shaft;
 	unsigned long _cnt;

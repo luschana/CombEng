@@ -39,6 +39,8 @@ CombustionEngine::CombustionEngine() {
 			Environment::getInst()->getAmbientAir()->getP(), Environment::getInst()->getAmbientAir()->getNu());
 	_exhaust = GasComponent(V_exhaust, Environment::getInst()->getAmbientAir()->getT(),
 			Environment::getInst()->getAmbientAir()->getP(), Environment::getInst()->getAmbientAir()->getNu());
+	_pValveIntake = new Valve(A_intake, num_Valve, 0.0, 4*M_PI);
+	_pValveExhaust = new Valve(A_exhaust, num_Valve, 0.0, 4*M_PI);
 //	_thrPos = 0.0;
 	_T_CW = 340.0;
 	_M_Shaft = 0.0;
@@ -60,16 +62,23 @@ void CombustionEngine::run(double w, double thrPos) {
 	double dphi = (_w + w)/2.0 * Ts;
 	_w = w;
 	_cnt++;
+
+	_pValveIntake->calcFlow(1.0, Environment::getInst()->getAmbientAir(), &_intake);
+	_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getExhaustGas());
+
 	for (i = 0; i < Ncyl; i++) {
 		_cyl[i].run(dphi);
 		_M_Shaft += _cyl[i].getM_G() + _cyl[i].getM_P();
 	}
-	Environment::getInst()->getAmbientAir()->calcGasExchange(A_intake, &_intake);
+
+	_intake.calcStateChange(1.0 , 0.0, 0.0, _pValveIntake->getGasComponent(), _pValveExhaust->getGasComponent());
+
+	//Environment::getInst()->getAmbientAir()->calcGasExchange(A_intake, &_intake);
 	//_exhaust.calcGasExchange(A_exhaust, Environment::getInst()->getExhaustGas());
 	/* use amb for tests
 	Environment::getInst()->getExhaustGas()->calcGasExchange(A_exhaust, &_exhaust);
 	*/
-	Environment::getInst()->getAmbientAir()->calcGasExchange(A_exhaust, &_exhaust);
+//	Environment::getInst()->getAmbientAir()->calcGasExchange(A_exhaust, &_exhaust);
 }
 
 void CombustionEngine::setPhiSpark(double sparkAngle) {

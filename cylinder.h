@@ -60,7 +60,7 @@ private:
     double _n_Fuel;
     GasComponent _gc;
     GasComponent *_pintake, *_pexhaust;
-
+    Valve *_pValveIn, *_pValveOut;
     Ecu *_pecu;
     Oil *_poil;
 

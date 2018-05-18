@@ -14,19 +14,25 @@ Ecu::Ecu() {
 	_phiValveOutClose = (3.0+	10.0/180.0)*M_PI;
 	_phiValveInOpen = (3.0	-	10.0/180.0)*M_PI;
 	_phiValveInClose = (4.0	+	10.0/180.0)*M_PI;
-	_valve_exh = Valve(A_Valve_out, num_Valve, 	_phiValveOutOpen, _phiValveOutClose);
-	_valve_inl = Valve(A_Valve_in, num_Valve, 	_phiValveInOpen, _phiValveInClose);
 	_throttlePosition = 0.0;
 	_w = 0.0;
 	_n_fuel_consumed = 0.0;
 }
 
-double Ecu::getValveOut_A(double phi){
-	return _valve_exh.getCrosssection(phi);
+double Ecu::getPhiValveInOpen() {
+	return _phiValveInOpen;
 }
 
-double Ecu::getValveIn_A(double phi){
-	return _valve_inl.getCrosssection(phi);
+double Ecu::getPhiValveInClose() {
+	return _phiValveInClose;
+}
+
+double Ecu::getPhiValveOutOpen() {
+	return _phiValveOutOpen;
+}
+
+double Ecu::getPhiValveOutClose() {
+	return _phiValveOutClose;
 }
 
 void Ecu::setPhiValveInClose(double phiValveInClose) {
@@ -44,27 +50,6 @@ void Ecu::setPhiValveOutClose(double phiValveOutClose) {
 void Ecu::setPhiValveOutOpen(double phiValveOutOpen) {
 	_phiValveOutOpen = phiValveOutOpen;
 }
-
-
-/**
- * valve class should do this!!!
-
-double Ecu::getPhiValveInClose() const {
-	return _phiValveInClose;
-}
-
-double Ecu::getPhiValveInOpen() const {
-	return _phiValveInOpen;
-}
-
-double Ecu::getPhiValveOutClose() const {
-	return _phiValveOutClose;
-}
-
-double Ecu::getPhiValveOutOpen() const {
-	return _phiValveOutOpen;
-}*/
-
 
 double Ecu::getPhiSpark() const {
 	return _phiSpark;
