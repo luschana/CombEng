@@ -153,7 +153,15 @@ double Shomate::getHeatCapacity(double T, const double *pn_def){
 }
 
 double Shomate::getFuelHeatCapacity(double T){
-	return ShDataDB[defs::Fuel].pars_[0].data_[shomate::A] + ShDataDB[defs::Fuel].pars_[0].data_[shomate::B] * T/1000.0;
+	//return ShDataDB[defs::Fuel].pars_[0].data_[shomate::A] + ShDataDB[defs::Fuel].pars_[0].data_[shomate::B] * T/1000.0
+	//		+ ShDataDB[defs::Fuel].pars_[0].data_[shomate::C] + ShDataDB[defs::Fuel].pars_[0].data_[shomate::D] * T/1000.0;
+	  double cp = 0.0;
+	  if (T < Shomate_T_min) T=Shomate_T_min;
+	  if (T > Shomate_T_max) T=Shomate_T_max;
+	  double t = T/1000.0;
+	  const ShParDef *pfuel = ShDataDB[defs::Fuel].getParams(T);
+	  cp= pfuel->data_[shomate::A] + pfuel->data_[shomate::B]*t + pfuel->data_[shomate::C]*pow(t,2.0) + pfuel->data_[shomate::D]*pow(t,3.0) + pfuel->data_[shomate::E]/pow(t,2.0);
+	  return cp;
 }
 
 double Shomate::getEnthalpyOfFormation(enum defs::eChemList substance){
@@ -167,8 +175,7 @@ Shomate* Shomate::getInst() {
 		return _pInst;
 }
 
-Shomate::~Shomate() {
-}
+
 
 
 

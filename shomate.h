@@ -88,7 +88,6 @@ public:
 
 private:
 	Shomate();
-	virtual ~Shomate();
 	static Shomate* _pInst;
 
 	ShParDef* _pActShParams;
