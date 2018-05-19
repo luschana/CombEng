@@ -67,6 +67,10 @@ private:
 	GasComponent _exhaust;
 	Valve *_pValveIntake;
 	Valve *_pValveExhaust;
+	bool _bIntakeFlowDirection[Ncyl+1];
+	bool _bExhaustFlowDirection[Ncyl+1];
+	const GasComponent *_pIntakeFlowGC[Ncyl+1];
+	const GasComponent *_pExhaustFlowGC[Ncyl+1];
 	double _T_CW;
 	double _M_Shaft;
 	unsigned long _cnt;

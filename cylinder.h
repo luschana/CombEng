@@ -56,6 +56,8 @@ public:
 	double getHxGas() const;
 	double getPressure() const;
 	double getTemperature() const;
+	Valve *getValveIn() const;
+	Valve *getValveOut() const;
 
 private:
     double _phi, _x_p, _dx_p, _v_p, _dv_p; //cs angle, abs. pos of piston, delta pos, abs. velocity, delta in velocity[m/s];

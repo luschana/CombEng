@@ -21,7 +21,6 @@ Injector::Injector(Ecu* pEcu) {
 }
 
 const GasComponent* Injector::getFuel(double phi) {
-
 	if(_n_Fuel > EPSILON && phi >= _pEcu->getPhiInjection()){
 		if(_n_Fuel > Fuel_n_Inject){
 			_pFuel->setFuelComponent(Fuel_n_Inject);

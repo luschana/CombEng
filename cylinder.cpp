@@ -120,6 +120,15 @@ double Cylinder::getHxGas() const {
 	return _H_hx_gas;
 }
 
+Valve* Cylinder::getValveIn() const {
+	return _pValveIn;
+}
+
+Valve* Cylinder::getValveOut() const {
+	return _pValveOut;
+}
+
+
 void Cylinder::run(double dPhi){
 	_phi += dPhi;
 	if(_phi >= 4.0*M_PI){
@@ -143,7 +152,6 @@ void Cylinder::run(double dPhi){
 	_F_fr = _pOil->getEta(_T_cyl)* 2*r_cs*M_PI*h_Piston * _v_p / d_Piston;
 	_M_p = m_Piston*_dv_p / Ts * r_cs * sin(_phi)- fabs(_F_fr * r_cs*sin(_phi)); // speed dep. && friction
 	if(passedAngle(_pEcu->getPhiInjection(),  dPhi)){
-		//_n_Fuel = _pecu->fillInjector(_pintake->getP(), _pintake->getT());
 		_pInj->fill(_pEcu->fillInjector(_pintake->getP(), _pintake->getT()));
 	}
 	if(passedAngle(_pEcu->getPhiSpark(),  dPhi)){
@@ -159,8 +167,7 @@ double Cylinder::getCylArea() const {
 }
 
 /*
- * Heat exchange
- *  gas <-> cyl. wall <-> cooling water
+ * Heat exchange gas <-> cyl. wall <-> cooling water
  */
 void Cylinder::calcHeatExchange(){
 	double hx_factor = _gc.getspecV()/(R*T_ref/p_ref) * getCylArea(); // v_ref/v(p,T) * A [m3/mol / m3/mol * m2]
@@ -171,6 +178,13 @@ void Cylinder::calcHeatExchange(){
 
 double Cylinder::getCmpFactor() const {
 	return 1.0/ (1.0 + _dx_p/(hCyl-_x_p));
+}
+
+/*
+ * is alpha passed by during this step?
+ */
+bool Cylinder::passedAngle(double alpha, double dphi) {
+	return (alpha < _phi && _phi <= alpha + dphi);
 }
 
 /**
@@ -189,11 +203,4 @@ double Cylinder::getCmpFactor() const {
 	}
 	return result;
 }*/
-
-/*
- * is alpha passed by during this step?
- */
-bool Cylinder::passedAngle(double alpha, double dphi) {
-	return (alpha < _phi && _phi <= alpha + dphi);
-}
 

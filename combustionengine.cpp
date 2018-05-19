@@ -47,8 +47,11 @@ CombustionEngine::CombustionEngine() {
 	for (i = 0; i < Ncyl; i++) {
 		_phiCyl[i] = -4*M_PI/Ncyl*(double)i;
 		_cyl[i] = Cylinder(_phiCyl[i], &_intake, &_exhaust, &_ecu, &_oil);
+		_pIntakeFlowGC[i] = _cyl[i].getValveIn()->getGasComponent();
+		_pExhaustFlowGC[i] = _cyl[i].getValveOut()->getGasComponent();
 	}
-
+	_pIntakeFlowGC[Ncyl+1] = _pValveIntake->getGasComponent();
+	_pExhaustFlowGC[Ncyl+1] = _pValveExhaust->getGasComponent();
 }
 /**
  * Parameters:
@@ -69,9 +72,15 @@ void CombustionEngine::run(double w, double thrPos) {
 	for (i = 0; i < Ncyl; i++) {
 		_cyl[i].run(dphi);
 		_M_Shaft += _cyl[i].getM_G() + _cyl[i].getM_P();
+		_bIntakeFlowDirection[i] = (_pIntakeFlowGC[i]->getMols() < 0.0); // +n: from intake
+		_bExhaustFlowDirection[i] = (_pExhaustFlowGC[i]->getMols() > 0.0); // +n: to exhaust
 	}
+	_bIntakeFlowDirection[Ncyl+1] = (_pIntakeFlowGC[Ncyl+1]->getMols() > 0.0); // +n: from env to intake
+	_bExhaustFlowDirection[Ncyl+1] = (_pExhaustFlowGC[Ncyl+1]->getMols() < 0.0); // +n: to env from exhaust
 
-	//_intake.calcStateChange(1.0 , 0.0, 0.0, _pValveIntake->getGasComponent(), _pValveExhaust->getGasComponent());
+
+	_intake.calcStateChange(_bIntakeFlowDirection, _pIntakeFlowGC);
+	_exhaust.calcStateChange(_bExhaustFlowDirection, _pExhaustFlowGC);
 
 	//Environment::getInst()->getAmbientAir()->calcGasExchange(A_intake, &_intake);
 	//_exhaust.calcGasExchange(A_exhaust, Environment::getInst()->getExhaustGas());

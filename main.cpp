@@ -5,8 +5,6 @@
  *      Author: Alex Luschan <alexander.luschan@gmail.com>
  */
 
-
-//#include "definitions.h"
 #include "combustionengine.h"
 
 int main(int argc, char **argv) {

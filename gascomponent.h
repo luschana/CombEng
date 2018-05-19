@@ -45,7 +45,8 @@ public:
 	void calcFlow(double phi, GasComponent* pIn, GasComponent* pOut);
 
 	void calcStateChange(double cmpFactor, double H_cooling, const GasComponent *pFuel, const GasComponent *pIntake, const GasComponent *pExhaust);
-	void calcStateChange(bool add, const GasComponent *pgc);
+	void calcStateChange(bool* add[], const GasComponent *pgc[]);
+	void calcStateChange(bool add, const GasComponent *pgc[]);
 
 //setter methods
 	void setCombustionStarted(bool combustionStarted);
@@ -79,13 +80,13 @@ private:
 	double isentropicStateChange(double cmpFactor);
 	void adiabaticStateChange(double cmpFactor);
 	void isochoricStateChange(double deltaH);
-	double injection(const GasComponent * pFuel);
+	//double injection(const GasComponent * pFuel);
 	double chemReaction();
 	double calcMolareWeight();
 	double calcMols();
 	void setNu(const GasComponent *pSrc);
-	double removeGC(const GasComponent *pgc);
-	double addGC(const GasComponent *pgc);
+	void removeGC(const GasComponent *pgc);
+	void addGC(const GasComponent *pgc);
 };
 
 #endif // GASCOMPONENT_H
