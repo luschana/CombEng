@@ -28,6 +28,7 @@ double getPressureFromRelHum(double T, double relHum);
 class GasComponent
 {
 public:
+	static GasComponent *getFuelComponent();
 	GasComponent();
 	GasComponent(double V, double T, double p);
 	GasComponent(double V, double T, double p, const double nu[defs::Fuel+1]);
@@ -43,12 +44,12 @@ public:
 	 */
 	void calcFlow(double phi, GasComponent* pIn, GasComponent* pOut);
 
-	void calcStateChange(double cmpFactor, double H_cooling, double n_Fuel, const GasComponent *pIntake, const GasComponent *pExhaust);
+	void calcStateChange(double cmpFactor, double H_cooling, const GasComponent *pFuel, const GasComponent *pIntake, const GasComponent *pExhaust);
 	void calcStateChange(bool add, const GasComponent *pgc);
 
 //setter methods
 	void setCombustionStarted(bool combustionStarted);
-	//void setMols(double n);
+	void setFuelComponent(double n_Fuel);
 //getter methods
 	double getSpecHeatCapacity() const;
 	double getEnthalpy() const;
@@ -76,7 +77,9 @@ protected:
 private:
 	double _n_chemR[4];
 	double isentropicStateChange(double cmpFactor);
-	double injection(double n_Fuel);
+	void adiabaticStateChange(double cmpFactor);
+	void isochoricStateChange(double deltaH);
+	double injection(const GasComponent * pFuel);
 	double chemReaction();
 	double calcMolareWeight();
 	double calcMols();

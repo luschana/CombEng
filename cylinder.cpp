@@ -29,7 +29,7 @@ Cylinder::Cylinder(){
 	_M_p = 0.0;
 	_M_g = 0.0;
 	_F_fr = 0.0;
-	_n_Fuel = 0.0;
+	//_n_Fuel = 0.0;
 	_H_cooling = 0.0;
 	_H_hx_gas = 0.0;
 	_T_cyl = T_ref;
@@ -37,8 +37,9 @@ Cylinder::Cylinder(){
 	_gc = GasComponent(Vcyl*(1+1/chi), T_ref, p_ref);
 	_pintake = NULL;
 	_pexhaust = NULL;
-	_pecu = NULL;
-	_poil = NULL;
+	_pEcu = NULL;
+	_pInj = NULL;
+	_pOil = NULL;
 	_pValveIn = NULL;
 	_pValveOut = NULL;
 }
@@ -52,7 +53,7 @@ Cylinder::Cylinder(double phi0, GasComponent *pinlet, GasComponent *pexhaust, Ec
 	_M_p = 0.0;
 	_M_g = 0.0;
 	_F_fr = 0.0;
-	_n_Fuel = 0.0;
+	//_n_Fuel = 0.0;
 	_H_cooling = 0.0;
 	_H_hx_gas = 0.0;
 	_T_cyl = T_ref;
@@ -60,10 +61,11 @@ Cylinder::Cylinder(double phi0, GasComponent *pinlet, GasComponent *pexhaust, Ec
 	_gc = GasComponent(Vcyl*(1+1/chi), T_ref, p_ref);
 	_pintake = pinlet;
 	_pexhaust = pexhaust;
-	_pecu = pecu;
-	_poil = poil;
-	_pValveIn = new Valve(A_Valve_in, num_Valve, _pecu->getPhiValveInOpen(), _pecu->getPhiValveInClose());
-	_pValveOut = new Valve(A_Valve_out, num_Valve, _pecu->getPhiValveOutOpen(), _pecu->getPhiValveOutClose());
+	_pEcu = pecu;
+	_pOil = poil;
+	_pInj = new Injector(_pEcu);
+	_pValveIn = new Valve(A_Valve_in, num_Valve, _pEcu->getPhiValveInOpen(), _pEcu->getPhiValveInClose());
+	_pValveOut = new Valve(A_Valve_out, num_Valve, _pEcu->getPhiValveOutOpen(), _pEcu->getPhiValveOutClose());
 }
 
 void Cylinder::setT_CW(double T_CW) {
@@ -138,16 +140,17 @@ void Cylinder::run(double dPhi){
 	_dv_p = _v_p - _dx_p/Ts;
 	_v_p = _dx_p/Ts;
 	//force of friction: F = eta(T) * A * v/d; M = F*r(phi)
-	_F_fr = _poil->getEta(_T_cyl)* 2*r_cs*M_PI*h_Piston * _v_p / d_Piston;
+	_F_fr = _pOil->getEta(_T_cyl)* 2*r_cs*M_PI*h_Piston * _v_p / d_Piston;
 	_M_p = m_Piston*_dv_p / Ts * r_cs * sin(_phi)- fabs(_F_fr * r_cs*sin(_phi)); // speed dep. && friction
-	if(passedAngle(_pecu->getPhiInjection(), dPhi)){
-		_n_Fuel = _pecu->fillInjector(_pintake->getP(), _pintake->getT());
+	if(passedAngle(_pEcu->getPhiInjection(),  dPhi)){
+		//_n_Fuel = _pecu->fillInjector(_pintake->getP(), _pintake->getT());
+		_pInj->fill(_pEcu->fillInjector(_pintake->getP(), _pintake->getT()));
 	}
-	if(passedAngle(_pecu->getPhiSpark(), dPhi)){
+	if(passedAngle(_pEcu->getPhiSpark(),  dPhi)){
 		_gc.setCombustionStarted(true);
 	}
 	// all together to be changed in the gas component: molare and heat transfer, chem. reaction, compression/expansion, ...
-	_gc.calcStateChange(getCmpFactor(), getHxGas(), calcFuelInj(), _pValveIn->getGasComponent(), _pValveOut->getGasComponent());
+	_gc.calcStateChange(getCmpFactor(), getHxGas(), _pInj->getFuel(_phi), _pValveIn->getGasComponent(), _pValveOut->getGasComponent());
 	_M_g = -ACyl*(_gc.getP() - Environment::getInst()->getAmbientAir()->getP())*r_cs*sin(_phi);
 }
 
@@ -170,16 +173,12 @@ double Cylinder::getCmpFactor() const {
 	return 1.0/ (1.0 + _dx_p/(hCyl-_x_p));
 }
 
-bool Cylinder::passedAngle(double alpha, double dphi) const {
-	return (alpha < _phi && _phi <= alpha + dphi);
-}
-
 /**
  * calc the mols of fuel to be injected
  */
-double Cylinder::calcFuelInj() {
+/*double Cylinder::calcFuelInj() {
 	double result = 0.0;
-	if(_n_Fuel > EPSILON && _phi >= _pecu->getPhiInjection()){
+	if(_n_Fuel > EPSILON && _phi >= _pEcu->getPhiInjection()){
 		if(_n_Fuel > Fuel_n_Inject){
 			result = Fuel_n_Inject;
 			_n_Fuel -= Fuel_n_Inject;
@@ -189,5 +188,12 @@ double Cylinder::calcFuelInj() {
 		}
 	}
 	return result;
+}*/
+
+/*
+ * is alpha passed by during this step?
+ */
+bool Cylinder::passedAngle(double alpha, double dphi) {
+	return (alpha < _phi && _phi <= alpha + dphi);
 }
 

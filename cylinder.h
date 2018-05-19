@@ -25,11 +25,15 @@
 #include "gascomponent.h"
 #include "ecu.h"
 #include "environment.h"
+#include "injector.h"
 #include "oil.h"
+
+
 
 class Cylinder
 {
 public:
+
 	Cylinder();
     Cylinder(double phi0, GasComponent *pinlet, GasComponent *pexhaust, Ecu *pecu, Oil *poil);
 
@@ -57,18 +61,19 @@ private:
     double _phi, _x_p, _dx_p, _v_p, _dv_p; //cs angle, abs. pos of piston, delta pos, abs. velocity, delta in velocity[m/s];
     double _M_p, _M_g, _F_fr;
     double _H_cooling, _T_CW, _T_cyl, _H_hx_gas; // to water [J], [K], [K]
-    double _n_Fuel;
+    //double _n_Fuel;
     GasComponent _gc;
     GasComponent *_pintake, *_pexhaust;
     Valve *_pValveIn, *_pValveOut;
-    Ecu *_pecu;
-    Oil *_poil;
+    Ecu *_pEcu;
+    Injector *_pInj;
+    Oil *_pOil;
 
     void calcHeatExchange();
     double getCylArea() const;
     double getCmpFactor() const;
-    bool passedAngle(double alpha, double dphi) const;
-    double calcFuelInj();
+    //double calcFuelInj();
+    bool passedAngle(double alpha, double dphi);
 };
 
 #endif // CYLINDER_H

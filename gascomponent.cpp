@@ -98,6 +98,26 @@ GasComponent::GasComponent(double V, double T, double p, const double nu[defs::F
 	_isContainer = isContainer;
 }
 
+GasComponent* GasComponent::getFuelComponent() {
+	GasComponent *result = new GasComponent();
+	for (int i = 0; i < defs::Fuel+1; i++) {
+		result->_nu[i]=0.0;
+	}
+	result->_nu[defs::Fuel] = 1.0;
+	result->_n_g = 0.0;
+	result->_H = 0.0;
+	result->_cp = Shomate::getInst()->getFuelHeatCapacity(result->_T);
+	result->_MW = MolWeights[defs::Fuel];
+	return result;
+}
+
+/*
+ * set moles to be n_Fuel and H to the enthalpy of its vaporization
+ */
+void GasComponent::setFuelComponent(double n_Fuel) {
+	_n_g = n_Fuel;
+	_H = - _n_g * Fuel_deltaH_vap;
+}
 
 void GasComponent::setCombustionStarted(bool combustionStarted) {
 	_combustionStarted = combustionStarted;
@@ -143,37 +163,25 @@ double GasComponent::getV() const {
 	return _V;
 }
 
-/*void GasComponent::calcGasExchange(double A_crosssection, GasComponent *pgc){
-	if(A_crosssection > 0 && fabs(_p - pgc->_p)>EPSILON){
-		double deltaN = 0.0;
-		if(_p > pgc->_p){
-			//deltaN = A_crosssection * pow( (_p*(_p - pgc->_p))/(2.0*_MW*R*_T) , 0.5)*Ts;
-			deltaN = A_crosssection * pow( (2.0*(_p - pgc->_p)*_MW/_v) , 0.5)*Ts;
-			pgc->transferFrom(deltaN, *this);
-		}else{
-			//deltaN = A_crosssection * pow( (pgc->_p*(pgc->_p - _p))/(2.0*pgc->_MW*R*pgc->_T) , 0.5)*Ts;
-			deltaN = A_crosssection * pow( (2.0*(pgc->_p - _p)*pgc->_MW/pgc->_v) , 0.5)*Ts;
-			transferFrom(deltaN, *pgc);
-		}
-	}
-}*/
-
+/*
+ * calculate the "exchanged gas component"; Bernoulli in its basic form
+ */
 void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasComponent* pOut){
 	_n_g=0.0;
 	if(A_crosssection > EPSILON){
 		GasComponent *pSrc = pIn;
-		GasComponent *pDest = pOut;
 		if(pIn->_p < pOut->_p){
 			pSrc = pOut;
-			pDest = pIn;
 		}
 		_n_g = A_crosssection * pow( (2.0*(pIn->_p - pOut->_p)*pSrc->_MW/pSrc->_v) , 0.5)*Ts; // neg. flow ok
-		_p = pDest->_p;
+		_p = pSrc->_p;// orig version: _p = pDest->_p; the kinetic energy is recuperated, so...
 		_T = pSrc->_T;
 		setNu(pSrc);
 		_cp = pSrc->_cp;
 		_MW = pSrc->_MW;
-		// _v = pSrc->_v; //R*T/p...
+		_v = pSrc->_v; //R*T/p...
+		_H = _n_g*_cp*_T;
+		_V = _n_g*_v;
 	}
 }
 void GasComponent::calcStateChange(bool add, const GasComponent *pgc){
@@ -187,11 +195,15 @@ void GasComponent::calcStateChange(bool add, const GasComponent *pgc){
 	}
 }
 
-void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_Fuel, const GasComponent *pIntake, const GasComponent *pExhaust){
+/*
+ * keep track of total enthalpy and all the mole based values; state vals are calculated at the end...
+ */
+void GasComponent::calcStateChange(double cmpFactor, double H_cooling, const GasComponent *pFuel, const GasComponent *pIntake, const GasComponent *pExhaust){
 	if(_T > Fuel_T_Autoignition) {
 		_combustionStarted = true;
 	}
 	double deltaH = H_cooling;
+	deltaH += isentropicStateChange(cmpFactor); // changes v&V
 	if(pExhaust->_n_g > 0){
 		deltaH += removeGC(pExhaust);
 	}else{
@@ -202,10 +214,8 @@ void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_
 	}else{
 		deltaH += removeGC(pIntake);
 	}
-	deltaH += injection(n_Fuel);
+	deltaH += injection(pFuel);
 	deltaH += chemReaction();
-	_v=_V/_n_g;
-	deltaH += isentropicStateChange(cmpFactor); // changes v&V
 
 
 	double dT_est = deltaH/(_n_g*_cp); // == dH/(n*cp)
@@ -222,6 +232,9 @@ void GasComponent::calcStateChange(double cmpFactor, double H_cooling, double n_
 
 // --- private methods
 
+/*
+ * there is an isentropic/adiabatic expansion to the free space left by the removed element
+ */
 double GasComponent::removeGC(const GasComponent *pgc){
 	double dH = 0.0;
 	double dn = fabs(pgc->_n_g);
@@ -254,19 +267,18 @@ double GasComponent::addGC(const GasComponent *pgc){
 }
 
 /*
- * calc the missing enthalpy to bring the fuel to gas temp and mix the moles
+ * calc the enthalpy needed for liquid->gas state change;
  */
-double GasComponent::injection(double n_Fuel){
+double GasComponent::injection(const GasComponent * pFuel){
 	double deltaH = 0.0;
 	double k = 1.0;
-	if(n_Fuel > EPSILON){
-		deltaH = n_Fuel * (-Fuel_deltaH_vap + Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
-		k = n_Fuel/_n_g;
-		_nu[defs::Fuel] += k;
-		normalizeMols();
+	if(pFuel->_n_g > EPSILON){
+		deltaH = -pFuel->_n_g * Fuel_deltaH_vap;//  + Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
+		addGC(pFuel);
 	}
 	return deltaH;
 }
+
 
 /* calculates the enthalpy difference but does not change the state values
  * cmpFactor: V_i/V_(i-1)
@@ -284,6 +296,29 @@ double GasComponent::isentropicStateChange(double cmpFactor) {
 		}
 	}
 	return deltaH;
+}
+
+/*
+ * evaluate state change from change of enthalpy;
+ * V = const; p/T = const;
+ * _cp needs to be "upToDate"!
+ */
+void GasComponent::isochoricStateChange(double deltaH) {
+	if(fabs(deltaH)>0){
+		_p *= (1.0 + deltaH/_H); // results from: p1/p2 = T1/T2 = cp1*T1/cp2*T2;
+		_H +=deltaH;
+		// T = f(deltaH)...
+		double dT_est = deltaH/(_n_g*_cp);
+		_cp = Shomate::getInst()->getHeatCapacity(_T+dT_est, _nu); // cp close to the new temperature
+		_T = _H/(_n_g*_cp);
+	}
+}
+
+/*
+ * isentropic state change and enthalpy taken from itself
+ */
+void GasComponent::adiabaticStateChange(double cmpFactor) {
+	isochoricStateChange(isentropicStateChange(cmpFactor));
 }
 
 double GasComponent::chemReaction(){
@@ -359,53 +394,12 @@ void GasComponent::normalizeMols(){
 	_MW = calcMolareWeight();
 }
 
+/*
+ * no checks, just write it...
+ */
 void GasComponent::setNu(const GasComponent *pSrc){
 	for (int i = 0; i < defs::Fuel+1; i++) {
 		_nu[i] = pSrc->_nu[i];
 	}
 }
-
-/*void GasComponent::transferFrom(double dn, GasComponent &gc) {
-	if(dn > EPSILON && gc._n_g > dn){ //do not take it from an "near empty" component -- neg dn: turn participants
-		// remove gas from gc
-		double dH = dn* gc._cp * gc._T;
-		double cmpFactor = 1 - dn/gc._n_g;
-		gc._H -= dH;
-		gc._n_g -= dn;
-
-		if(!gc._isContainer){ //isentropic expansion (V const)
-			gc._H = gc._H * pow(cmpFactor, 1.0/(gc._cp/R - 1.0));
-			gc._T = gc._H/(gc._n_g * gc._cp);
-			gc._v = gc._V/gc._n_g;
-			gc._p = R*gc._T / gc._v;
-		}else{ //isobaric expansion (p,T,v const)
-			gc._V *= cmpFactor;
-		}
-
-		// add to 'this'
-		_H += dH;
-		cmpFactor = dn/_n_g;
-		_MW = (_MW + cmpFactor*gc._MW)/(1+cmpFactor);
-		int i = 0;
-		for (i = 0; i < defs::Fuel+1; i++) {
-			_nu[i] = (_nu[i]+cmpFactor*gc._nu[i])/(1+cmpFactor);
-		}
-		_n_g += dn;
-
-		if(!_isContainer){
-			_H = _H * pow( (1+cmpFactor) , 1.0/(_cp/R - 1.0));
-			_T = _H/(_n_g * _cp);
-			_v = _V/_n_g;
-			_p = R*_T / _v;
-		}else{
-			_V *= (1+cmpFactor);
-		}
-		_combustionStarted &= gc._combustionStarted;
-
-	}else{
-		if(dn < -EPSILON){
-			gc.transferFrom(-dn, *this);
-		}
-	}
-}*/
 

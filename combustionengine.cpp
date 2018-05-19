@@ -71,7 +71,7 @@ void CombustionEngine::run(double w, double thrPos) {
 		_M_Shaft += _cyl[i].getM_G() + _cyl[i].getM_P();
 	}
 
-	_intake.calcStateChange(1.0 , 0.0, 0.0, _pValveIntake->getGasComponent(), _pValveExhaust->getGasComponent());
+	//_intake.calcStateChange(1.0 , 0.0, 0.0, _pValveIntake->getGasComponent(), _pValveExhaust->getGasComponent());
 
 	//Environment::getInst()->getAmbientAir()->calcGasExchange(A_intake, &_intake);
 	//_exhaust.calcGasExchange(A_exhaust, Environment::getInst()->getExhaustGas());
