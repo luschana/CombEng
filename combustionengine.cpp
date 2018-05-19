@@ -41,7 +41,6 @@ CombustionEngine::CombustionEngine() {
 			Environment::getInst()->getAmbientAir()->getP(), Environment::getInst()->getAmbientAir()->getNu());
 	_pValveIntake = new Valve(A_intake, num_Valve, 0.0, 4*M_PI);
 	_pValveExhaust = new Valve(A_exhaust, num_Valve, 0.0, 4*M_PI);
-//	_thrPos = 0.0;
 	_T_CW = 340.0;
 	_M_Shaft = 0.0;
 	for (i = 0; i < Ncyl; i++) {
@@ -49,9 +48,13 @@ CombustionEngine::CombustionEngine() {
 		_cyl[i] = Cylinder(_phiCyl[i], &_intake, &_exhaust, &_ecu, &_oil);
 		_pIntakeFlowGC[i] = _cyl[i].getValveIn()->getGasComponent();
 		_pExhaustFlowGC[i] = _cyl[i].getValveOut()->getGasComponent();
+		_bIntakeFlowDirection[i] = false;
+		_bExhaustFlowDirection[i] = true;
 	}
-	_pIntakeFlowGC[Ncyl+1] = _pValveIntake->getGasComponent();
-	_pExhaustFlowGC[Ncyl+1] = _pValveExhaust->getGasComponent();
+	_pIntakeFlowGC[Ncyl] = _pValveIntake->getGasComponent();
+	_pExhaustFlowGC[Ncyl] = _pValveExhaust->getGasComponent();
+	_bIntakeFlowDirection[Ncyl] = true;
+	_bExhaustFlowDirection[Ncyl] = false;
 }
 /**
  * Parameters:
@@ -75,8 +78,8 @@ void CombustionEngine::run(double w, double thrPos) {
 		_bIntakeFlowDirection[i] = (_pIntakeFlowGC[i]->getMols() < 0.0); // +n: from intake
 		_bExhaustFlowDirection[i] = (_pExhaustFlowGC[i]->getMols() > 0.0); // +n: to exhaust
 	}
-	_bIntakeFlowDirection[Ncyl+1] = (_pIntakeFlowGC[Ncyl+1]->getMols() > 0.0); // +n: from env to intake
-	_bExhaustFlowDirection[Ncyl+1] = (_pExhaustFlowGC[Ncyl+1]->getMols() < 0.0); // +n: to env from exhaust
+	_bIntakeFlowDirection[Ncyl] = (_pIntakeFlowGC[Ncyl]->getMols() > 0.0); // +n: from env to intake
+	_bExhaustFlowDirection[Ncyl] = (_pExhaustFlowGC[Ncyl]->getMols() < 0.0); // +n: to env from exhaust
 
 
 	_intake.calcStateChange(_bIntakeFlowDirection, _pIntakeFlowGC);

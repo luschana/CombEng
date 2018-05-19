@@ -45,8 +45,7 @@ public:
 	void calcFlow(double phi, GasComponent* pIn, GasComponent* pOut);
 
 	void calcStateChange(double cmpFactor, double H_cooling, const GasComponent *pFuel, const GasComponent *pIntake, const GasComponent *pExhaust);
-	void calcStateChange(bool* add[], const GasComponent *pgc[]);
-	void calcStateChange(bool add, const GasComponent *pgc[]);
+	void calcStateChange(bool *add, const GasComponent *pgc[]);
 
 //setter methods
 	void setCombustionStarted(bool combustionStarted);
