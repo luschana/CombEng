@@ -168,13 +168,14 @@ double GasComponent::getV() const {
  */
 void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasComponent* pOut){
 	_n_g=0.0;
-	if(A_crosssection > EPSILON){
+	if(A_crosssection > EPSILON && fabs(pIn->_p-pOut->_p) > EPSILON){
 		GasComponent *pSrc = pIn;
-		if(pIn->_p < pOut->_p){
+		bool reverse = (pIn->_p < pOut->_p);
+		if(reverse){
 			pSrc = pOut;
 		}
-		_n_g = A_crosssection * pow( (2.0*(pIn->_p - pOut->_p)*pSrc->_MW/pSrc->_v) , 0.5)*Ts; // neg. flow ok
-		_p = pSrc->_p;// orig version: _p = pDest->_p; the kinetic energy is recuperated, so...
+		_n_g = A_crosssection * sqrt( 2.0*fabs(pIn->_p - pOut->_p)*pSrc->_MW/pSrc->_v )*Ts; // sqrt of delta p!!!
+		_p = pSrc->_p;// orig version: _p = pDest->_p; the kinetic energy is recuperated, so... nevertheless it has no influnce on _H
 		_T = pSrc->_T;
 		setNu(pSrc);
 		_cp = pSrc->_cp;
@@ -182,13 +183,13 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
 		_v = pSrc->_v; //R*T/p...
 		_H = _n_g*_cp*_T;
 		_V = _n_g*_v;
+		if(reverse) _n_g *= -1; // neg. flow ok
 	}
 }
 
 /*
  * get all Valve GCs for intake/exhaust at once -- all cylinders + "environment valve"
  */
-//void GasComponent::calcStateChange(bool add[], const GasComponent *pgc[]){
 void GasComponent::calcStateChange(bool *add, const GasComponent *pgc[]){
 	for (int i = 0; i < Ncyl+1; i++) {
 		if(!add[i] && fabs(pgc[i]->_n_g)>EPSILON) removeGC(pgc[i]);
@@ -208,9 +209,6 @@ void GasComponent::calcStateChange(bool *add, const GasComponent *pgc[]){
  * keep track of total enthalpy and all the mole based values; state vals are calculated at the end...
  */
 void GasComponent::calcStateChange(double cmpFactor, double H_cooling, const GasComponent *pFuel, const GasComponent *pIntake, const GasComponent *pExhaust){
-	if(_T > Fuel_T_Autoignition) {
-		_combustionStarted = true;
-	}
 	double deltaH = _H; //used as storage in the first place
 	_H += isentropicStateChange(cmpFactor); // changes v&V
 	// remove components first, than add
@@ -250,7 +248,7 @@ void GasComponent::calcStateChange(double cmpFactor, double H_cooling, const Gas
  */
 void GasComponent::removeGC(const GasComponent *pgc){
 	double dn = fabs(pgc->_n_g);
-	if(dn>0){
+	if(dn>EPSILON){
 		if(_n_g > dn){
 			_n_g -= dn;
 			_H -= dn*_cp*_T;
@@ -266,7 +264,7 @@ void GasComponent::removeGC(const GasComponent *pgc){
  */
 void GasComponent::addGC(const GasComponent *pgc){
 	double dn = fabs(pgc->_n_g);
-	if(dn>0){
+	if(dn>EPSILON){
 		_H += pgc->_H;
 		for (int i = 0; i<defs::Fuel+1; i++) {
 			_nu[i] = (_nu[i]*_n_g + pgc->_nu[i]*dn)/(_n_g + dn);
@@ -317,6 +315,16 @@ void GasComponent::adiabaticStateChange(double cmpFactor) {
 
 double GasComponent::chemReaction(){
 	double deltaH = 0.0;
+	if(_T > Fuel_T_Autoignition) {
+		_combustionStarted = true;
+	}
+	// check if combustion is to be turned off
+	if(_combustionStarted &&
+			((_nu[defs::O2] < EPSILON && _nu[defs::Fuel] < EPSILON) ||
+			( _nu[defs::H2] < EPSILON && _nu[defs::C] < EPSILON && _nu[defs::CO] < EPSILON && _nu[defs::Fuel] < EPSILON))){
+		_combustionStarted = false;
+	}
+
 	if(_combustionStarted){
 		double k_Tpt =  _p/p_ref * exp( _T/T_ref - 1.0)*Ts;
 		if(k_Tpt < 0) k_Tpt = 0.0;
@@ -342,10 +350,6 @@ double GasComponent::chemReaction(){
 		_nu[defs::CO2]  += _n_chemR[3];
 		_nu[defs::O2]   -= 0.5*(_n_chemR[1] + _n_chemR[2] + _n_chemR[3]);
 		normalizeMols();
-		if(_nu[defs::O2] < EPSILON ||
-				( _nu[defs::H2] < EPSILON && _nu[defs::C] < EPSILON && _nu[defs::CO] < EPSILON && _nu[defs::Fuel] < EPSILON)){
-			_combustionStarted = false;
-		}
 	}
 	return deltaH;
 }

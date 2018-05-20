@@ -39,8 +39,8 @@ CombustionEngine::CombustionEngine() {
 			Environment::getInst()->getAmbientAir()->getP(), Environment::getInst()->getAmbientAir()->getNu());
 	_exhaust = GasComponent(V_exhaust, Environment::getInst()->getAmbientAir()->getT(),
 			Environment::getInst()->getAmbientAir()->getP(), Environment::getInst()->getAmbientAir()->getNu());
-	_pValveIntake = new Valve(A_intake, num_Valve, 0.0, 4*M_PI);
-	_pValveExhaust = new Valve(A_exhaust, num_Valve, 0.0, 4*M_PI);
+	_pValveIntake = new Valve(A_intake);
+	_pValveExhaust = new Valve(A_exhaust);
 	_T_CW = 340.0;
 	_M_Shaft = 0.0;
 	for (i = 0; i < Ncyl; i++) {
@@ -75,22 +75,15 @@ void CombustionEngine::run(double w, double thrPos) {
 	for (i = 0; i < Ncyl; i++) {
 		_cyl[i].run(dphi);
 		_M_Shaft += _cyl[i].getM_G() + _cyl[i].getM_P();
-		_bIntakeFlowDirection[i] = (_pIntakeFlowGC[i]->getMols() < 0.0); // +n: from intake
-		_bExhaustFlowDirection[i] = (_pExhaustFlowGC[i]->getMols() > 0.0); // +n: to exhaust
+		_bIntakeFlowDirection[i] = !(_pIntakeFlowGC[i]->getMols() > 0.0); // +n ==> !add: from intake to cyl
+		_bExhaustFlowDirection[i] = (_pExhaustFlowGC[i]->getMols() > 0.0); // +n ==> add: from cyl to exhaust
 	}
-	_bIntakeFlowDirection[Ncyl] = (_pIntakeFlowGC[Ncyl]->getMols() > 0.0); // +n: from env to intake
-	_bExhaustFlowDirection[Ncyl] = (_pExhaustFlowGC[Ncyl]->getMols() < 0.0); // +n: to env from exhaust
+	_bIntakeFlowDirection[Ncyl] = (_pIntakeFlowGC[Ncyl]->getMols() > 0.0); // +n ==> add: from env to intake
+	_bExhaustFlowDirection[Ncyl] = !(_pExhaustFlowGC[Ncyl]->getMols() > 0.0); // +n ==> !add: from exhaust to env
 
 
 	_intake.calcStateChange(_bIntakeFlowDirection, _pIntakeFlowGC);
 	_exhaust.calcStateChange(_bExhaustFlowDirection, _pExhaustFlowGC);
-
-	//Environment::getInst()->getAmbientAir()->calcGasExchange(A_intake, &_intake);
-	//_exhaust.calcGasExchange(A_exhaust, Environment::getInst()->getExhaustGas());
-	/* use amb for tests
-	Environment::getInst()->getExhaustGas()->calcGasExchange(A_exhaust, &_exhaust);
-	*/
-//	Environment::getInst()->getAmbientAir()->calcGasExchange(A_exhaust, &_exhaust);
 }
 
 void CombustionEngine::setPhiSpark(double sparkAngle) {

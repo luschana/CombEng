@@ -16,6 +16,7 @@ class Valve{
 public:
 	Valve();
 	Valve(double A_Valves, int num_Valves, double dphi_open, double dphi_close);
+	Valve(double A_Valves);
 	double getPhiM();
 	double getDPhi();
 	void setPhiM(double phi_M);
@@ -31,6 +32,8 @@ private:
 	double _stroke;		// stroke of valve(s)
 	int _num;			// number of valves
 	GasComponent *_pgc;	// GasComponent to hold the floating trough gas
+	bool _isAperture;	// specify this valve to have a const A_cr
+	double _A_Aperture;		// value of cross section area
 
 	double getActStroke(double phi);
 };

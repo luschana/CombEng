@@ -77,10 +77,11 @@ double Ecu::getThrottlePosition() const {
 
 void Ecu::setThrottlePosition(double throttlePosition, double w) {
 	_w = w;
-	if(throttlePosition >= 0.0 && throttlePosition <= 1.0) {
-		_throttlePosition = throttlePosition;
-	}
-	if( _w < w_engine_min || _w > w_engine_max){
+	if (_w > w_engine_min && _w < w_engine_max){
+		if(throttlePosition >= 0.0 && throttlePosition <= 1.0) {
+			_throttlePosition = throttlePosition;
+		}
+	}else{
 		_throttlePosition = 0.0;
 	}
 }

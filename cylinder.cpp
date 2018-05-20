@@ -146,7 +146,7 @@ void Cylinder::run(double dPhi){
 	// mech. state change
 	_dx_p = r_cs*( sqrt(pow(l2r,2.0) - pow(sin(_phi),2.0)) - cos(_phi) -(l2r-1.0)) -_x_p; // change in x pos (from 0)
 	_x_p += _dx_p;
-	_dv_p = _v_p - _dx_p/Ts;
+	_dv_p = _dx_p/Ts - _v_p;
 	_v_p = _dx_p/Ts;
 	//force of friction: F = eta(T) * A * v/d; M = F*r(phi)
 	_F_fr = _pOil->getEta(_T_cyl)* 2*r_cs*M_PI*h_Piston * _v_p / d_Piston;

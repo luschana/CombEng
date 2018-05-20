@@ -8,7 +8,21 @@
 #include "valve.h"
 
 /**
- *
+ * constructor for a valve
+ */
+Valve::Valve(double A_Valves){
+	_phi_m = 0.0;
+	_dphi = 0.0;
+	_num = 1;
+	_r = 0.0;
+	_stroke = 0.0;
+	_pgc = new GasComponent();
+	_isAperture = true;
+	_A_Aperture = A_Valves;
+}
+
+/**
+ * constructor for a valve
  */
 Valve::Valve(double A_Valves, int num_Valves, double phi_open, double phi_close){
 	_phi_m = (phi_open+phi_close)/2;
@@ -17,6 +31,8 @@ Valve::Valve(double A_Valves, int num_Valves, double phi_open, double phi_close)
 	_r = sqrt(A_Valves/((double)num_Valves * M_PI));
 	_stroke = _r*2;
 	_pgc = new GasComponent();
+	_isAperture = false;
+	_A_Aperture = 0.0;
 }
 
 double Valve::getPhiM() {
@@ -36,12 +52,15 @@ void Valve::setDPhi(double d_Phi) {
 }
 
 double Valve::getCrosssection(double phi) {
-	double result = getActStroke(phi);
-	if(result > 0.0){
-		if(result > _r/2.0){ 		// fully opened
-			result = _r*_r*M_PI*_num;
-		}else{						// partially opened
-			result *= 2.0*_r*M_PI*_num;
+	double result = _A_Aperture;
+	if(!_isAperture){
+		result = getActStroke(phi);
+		if(result > 0.0){
+			if(result > _r/2.0){ 		// fully opened
+				result = _r*_r*M_PI*_num;
+			}else{						// partially opened
+				result *= 2.0*_r*M_PI*_num;
+			}
 		}
 	}
 	return result;
@@ -75,4 +94,6 @@ Valve::Valve(){
 	_r = 0.0;
 	_stroke = 0.0;
 	_pgc = new GasComponent();
+	_isAperture = true;
+	_A_Aperture = 0.0;
 }
