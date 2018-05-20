@@ -33,7 +33,7 @@ double getFuelVaporizationEnthaly(double T, double Tmin, double Tmax, double A, 
 
 // calc consts
 const double Ts = 10.0*pow(10.0,-6.0); //[s] cycle time
-const double EPSILON = pow(10.0,-9.0); // max deviation of double numbers
+const double EPSILON = pow(10.0,-12.0); // max deviation of double numbers
 
 // engine consts
 // mechanical
