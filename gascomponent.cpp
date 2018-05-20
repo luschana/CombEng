@@ -190,12 +190,16 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
 /*
  * get all Valve GCs for intake/exhaust at once -- all cylinders + "environment valve"
  */
-void GasComponent::calcStateChange(bool *add, const GasComponent *pgc[]){
+void GasComponent::calcStateChange(bool *add, const GasComponent **pgc){
 	for (int i = 0; i < Ncyl+1; i++) {
-		if(!add[i] && fabs(pgc[i]->_n_g)>EPSILON) removeGC(pgc[i]);
+		if(!add[i] && fabs(pgc[i]->_n_g)>EPSILON){
+			removeGC(pgc[i]);
+		}
 	}
 	for (int i = 0; i < Ncyl+1; i++) {
-		if(add[i] && fabs(pgc[i]->_n_g)>EPSILON) addGC(pgc[i]);
+		if(add[i] && fabs(pgc[i]->_n_g)>EPSILON){
+			addGC(pgc[i]);
+		}
 	}
 	_MW = calcMolareWeight();
 	_v = _V/_n_g;

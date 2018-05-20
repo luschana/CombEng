@@ -71,6 +71,8 @@ void CombustionEngine::run(double w, double thrPos) {
 
 	_pValveIntake->calcFlow(1.0, Environment::getInst()->getAmbientAir(), &_intake);
 	_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getExhaustGas());
+	_bIntakeFlowDirection[Ncyl] = (_pIntakeFlowGC[Ncyl]->getMols() > 0.0); // +n ==> add: from env to intake
+	_bExhaustFlowDirection[Ncyl] = !(_pExhaustFlowGC[Ncyl]->getMols() > 0.0); // +n ==> !add: from exhaust to env
 
 	for (i = 0; i < Ncyl; i++) {
 		_cyl[i].run(dphi);
@@ -78,9 +80,6 @@ void CombustionEngine::run(double w, double thrPos) {
 		_bIntakeFlowDirection[i] = !(_pIntakeFlowGC[i]->getMols() > 0.0); // +n ==> !add: from intake to cyl
 		_bExhaustFlowDirection[i] = (_pExhaustFlowGC[i]->getMols() > 0.0); // +n ==> add: from cyl to exhaust
 	}
-	_bIntakeFlowDirection[Ncyl] = (_pIntakeFlowGC[Ncyl]->getMols() > 0.0); // +n ==> add: from env to intake
-	_bExhaustFlowDirection[Ncyl] = !(_pExhaustFlowGC[Ncyl]->getMols() > 0.0); // +n ==> !add: from exhaust to env
-
 
 	_intake.calcStateChange(_bIntakeFlowDirection, _pIntakeFlowGC);
 	_exhaust.calcStateChange(_bExhaustFlowDirection, _pExhaustFlowGC);

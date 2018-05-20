@@ -37,7 +37,7 @@ const double EPSILON = pow(10.0,-9.0); // max deviation of double numbers
 
 // engine consts
 // mechanical
-const int Ncyl = 4; // number of cylinders
+const int Ncyl = 1; // number of cylinders
 const double Vcyl = 0.5*pow(10.0,-3.0); //[m3] cylinder volume
 const double chi = 12.0; // compression factor
 const double w_engine_min = 150.0*M_PI/30.0; // minimum engine speed -- injection starting point
@@ -61,10 +61,8 @@ const double V_intake = Vcyl*(10.0+Ncyl*2.0); //[m3] volume of intake manifold
 const double V_exhaust = V_intake*2.0; //[m3] volume of exhaust pipe
 // heat transfer
 const double hx_a_CW = 400.0; // [J/(K s)] heat transfer coefficient cooling water <-> wall
-const double hx_a_CG = 800.0; // [J/(K m2 s)] heat transfer coefficient wall <-> gas (delta T ~300K; 10kW thermal flow rate)
+const double hx_a_CG = 00.0; //800 [J/(K m2 s)] heat transfer coefficient wall <-> gas (delta T ~300K; 10kW thermal flow rate)
 const double hx_C_W = 15000.0; // [J/K] heat capacity of wall
-//const double hx_gamma = hx_C_W / hx_a_CW; // ratio hx_C_W / hx_a_CW
-//const double hx_alpha = hx_a_CG / hx_a_CW; // ratio hx_a_WG / hx_a_CW
 
 // standard definitions
 const double R = 8.314462175; // [J/mol K]
