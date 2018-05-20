@@ -51,21 +51,6 @@ void Valve::setDPhi(double d_Phi) {
 	_dphi = d_Phi;
 }
 
-double Valve::getCrosssection(double phi) {
-	double result = _A_Aperture;
-	if(!_isAperture){
-		result = getActStroke(phi);
-		if(result > 0.0){
-			if(result > _r/2.0){ 		// fully opened
-				result = _r*_r*M_PI*_num;
-			}else{						// partially opened
-				result *= 2.0*_r*M_PI*_num;
-			}
-		}
-	}
-	return result;
-}
-
 /**
  * init the calculation of the transfer component -- do this for closed valve too...
  */
@@ -83,6 +68,21 @@ double Valve::getActStroke(double phi){
 		result = (1 - fabs(_phi_m - phi)/_dphi)*_stroke;
 	}else{
 		result = (1 -fabs(_phi_m - phi - 4*M_PI)/_dphi) * _stroke;
+	}
+	return result;
+}
+
+double Valve::getCrosssection(double phi) {
+	double result = _A_Aperture;
+	if(!_isAperture){
+		result = getActStroke(phi);
+		if(result > 0.0){
+			if(result > _r/2.0){ 		// fully opened
+				result = _r*_r*M_PI*_num;
+			}else{						// partially opened
+				result *= 2.0*_r*M_PI*_num;
+			}
+		}
 	}
 	return result;
 }

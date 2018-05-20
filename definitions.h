@@ -33,13 +33,13 @@ double getFuelVaporizationEnthaly(double T, double Tmin, double Tmax, double A, 
 
 // calc consts
 const double Ts = 10.0*pow(10.0,-6.0); //[s] cycle time
-const double EPSILON = pow(10.0,-6.0); // max deviation of double numbers
+const double EPSILON = pow(10.0,-9.0); // max deviation of double numbers
 
 // engine consts
 // mechanical
-const int Ncyl = 1; // number of cylinders
+const int Ncyl = 4; // number of cylinders
 const double Vcyl = 0.5*pow(10.0,-3.0); //[m3] cylinder volume
-const double chi = 18.0; // compression factor
+const double chi = 12.0; // compression factor
 const double w_engine_min = 150.0*M_PI/30.0; // minimum engine speed -- injection starting point
 const double w_engine_max = 12000.0*M_PI/30.0; // maximum engine speed -- injection end point
 const double l2r = 2.5; //[m/m] pleuel to crank shaft radius

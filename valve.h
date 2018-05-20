@@ -21,7 +21,6 @@ public:
 	double getDPhi();
 	void setPhiM(double phi_M);
 	void setDPhi(double d_Phi);
-	double getCrosssection(double phi);
 	void calcFlow(double phi, GasComponent *pIn, GasComponent *pOut);
 	const GasComponent *getGasComponent();
 
@@ -35,6 +34,7 @@ private:
 	bool _isAperture;	// specify this valve to have a const A_cr
 	double _A_Aperture;		// value of cross section area
 
+	double getCrosssection(double phi);
 	double getActStroke(double phi);
 };
 
