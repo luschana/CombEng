@@ -176,12 +176,14 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
 	_n_g=0.0;
 	if(A_crosssection > EPSILON && fabs(pIn->_p-pOut->_p) > EPSILON*p_ref){
 		GasComponent *pSrc = pIn;
+		GasComponent *pDest = pOut;
 		bool reverse = (pIn->_p < pOut->_p);
 		if(reverse){
 			pSrc = pOut;
+			pDest = pIn;
 		}
 		_n_g = A_crosssection * sqrt( 2.0*fabs(pIn->_p - pOut->_p)*pSrc->_MW/pSrc->_v )*Ts; // sqrt of delta p!!!
-		_p = pSrc->_p;// orig version: _p = pDest->_p; the kinetic energy is recuperated, so... nevertheless it has no influnce on _H
+		_p = pDest->_p; //the kinetic energy is recuperated, so ?src? ... nevertheless it has no influnce on _H
 		_T = pSrc->_T;
 		setNu(pSrc);
 		_cp = pSrc->_cp;
@@ -210,17 +212,7 @@ void GasComponent::calcStateChange(bool *add, const GasComponent **pgc){
 	}
 
 	double T_est =_H/(_n_g*_cp); // (_H_act - _H_old)/(_n_g*_cp)
-
-	if(_dirtyFlag){
-		_MW = calcMolareWeight();
-		_v = _V/_n_g;
-	}
-	if(_dirtyFlag || fabs(T_est - _T)>EPSILON){
-		_cp = Shomate::getInst()->getHeatCapacity(T_est, _nu);
-		_T = _H/(_n_g * _cp);
-		_p = R*_T/_v;
-		_dirtyFlag = false;
-	}
+	cleanUpStateChange(T_est);
 }
 
 /*
@@ -248,33 +240,37 @@ void GasComponent::calcStateChange(double cmpFactor, double H_cooling, const Gas
 	deltaH = _H - deltaH; //now it's the delta
 
 	double T_est = _T + deltaH/(_n_g*_cp);
-	if(_dirtyFlag){
-		_MW = calcMolareWeight();
-		_v = _V/_n_g;
-	}
-	if(_dirtyFlag || fabs(T_est - _T)>EPSILON){
-		_cp = Shomate::getInst()->getHeatCapacity(T_est, _nu);
-		_T = _H/(_n_g * _cp);
-		_p = R*_T/_v;
-		_dirtyFlag = false;
-	}
+	cleanUpStateChange(T_est);
 }
 
 // --- private methods
 /*
- * evaluate state change from change of enthalpy;
- * V = const; p/T = const;
- * _cp needs to be "upToDate"!
+ * "harmonize" what got unsorted by calc* methodes
  */
-void GasComponent::isochoricStateChange(double deltaH) {
-	if(fabs(deltaH)>0){
-		_p *= (1.0 + deltaH/_H); // results from: p1/p2 = T1/T2 = cp1*T1/cp2*T2;
-		_H +=deltaH;
-		// T = f(deltaH)...
-		double dT_est = deltaH/(_n_g*_cp);
-		_cp = Shomate::getInst()->getHeatCapacity(_T+dT_est, _nu); // cp close to the new temperature
-		_T = _H/(_n_g*_cp);
-		_dirtyFlag = false;
+void GasComponent::cleanUpStateChange(double T_estimate){
+	if(!_isContainer){
+		if(_dirtyFlag){
+			_MW = calcMolareWeight();
+			_v = _V/_n_g;
+		}
+		if(_dirtyFlag || fabs(T_estimate - _T)>EPSILON){
+			_cp = Shomate::getInst()->getHeatCapacity(T_estimate, _nu);
+			_T = _H/(_n_g * _cp);
+			_p = R*_T/_v;
+			_dirtyFlag = false;
+		}
+	}else{
+		if(_dirtyFlag || fabs(T_estimate - _T)>EPSILON){
+			_cp = Shomate::getInst()->getHeatCapacity(T_estimate, _nu);
+			_T = _H/(_n_g * _cp);
+		}
+		if(_dirtyFlag){
+			_MW = calcMolareWeight();
+			_v = R*_T/_p;
+			_V = _v * _n_g;
+			_dirtyFlag = false;
+		}
+
 	}
 }
 
