@@ -43,7 +43,6 @@ public:
 	 * calc the gc that flows from in to out
 	 */
 	void calcFlow(double phi, GasComponent* pIn, GasComponent* pOut);
-
 	void calcStateChange(double cmpFactor, double H_cooling, const GasComponent *pFuel, const GasComponent *pIntake, const GasComponent *pExhaust);
 	void calcStateChange(bool *add, const GasComponent **pgc);
 
@@ -72,10 +71,8 @@ private:
 	bool _isContainer;
 	bool _dirtyFlag; // mark attributes to be inconsistent
 
-
-
+	void cleanUpStateChange(double T_estimate);
 	double isentropicStateChange(double cmpFactor);
-	void isochoricStateChange(double deltaH);
 	double chemReaction();
 	double calcMolareWeight();
 	double calcMols();
