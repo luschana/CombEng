@@ -45,7 +45,8 @@ CombustionEngine::CombustionEngine() {
 	_M_Shaft = 0.0;
 	for (i = 0; i < Ncyl; i++) {
 		_phiCyl[i] = -4*M_PI/Ncyl*(double)i;
-		_cyl[i] = Cylinder(_phiCyl[i], &_intake, &_exhaust, &_ecu, &_oil);
+		//_cyl[i] = Cylinder(_phiCyl[i], &_intake, &_exhaust, &_ecu, &_oil);
+        _cyl[i] = Cylinder(_phiCyl[i], Environment::getInst()->getAmbientAir(), Environment::getInst()->getExhaustGas(), &_ecu, &_oil);
 		_pIntakeFlowGC[i] = _cyl[i].getValveIn()->getGasComponent();
 		_pExhaustFlowGC[i] = _cyl[i].getValveOut()->getGasComponent();
 		_bIntakeFlowDirection[i] = false;
@@ -69,9 +70,8 @@ void CombustionEngine::run(double w, double thrPos) {
 	_w = w;
 	_cnt++;
 
-	_pValveIntake->calcFlow(1.0, Environment::getInst()->getAmbientAir(), &_intake);
+	//_pValveIntake->calcFlow(1.0, Environment::getInst()->getAmbientAir(), &_intake);
 	//_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getExhaustGas());
-	_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getAmbientAir());
 	_bIntakeFlowDirection[Ncyl] = (_pIntakeFlowGC[Ncyl]->getMols() > 0.0); // +n ==> add: from env to intake
 	_bExhaustFlowDirection[Ncyl] = !(_pExhaustFlowGC[Ncyl]->getMols() > 0.0); // +n ==> !add: from exhaust to env
 
@@ -82,8 +82,8 @@ void CombustionEngine::run(double w, double thrPos) {
 		_bExhaustFlowDirection[i] = (_pExhaustFlowGC[i]->getMols() > 0.0); // +n ==> add: from cyl to exhaust
 	}
 
-	_intake.calcStateChange(_bIntakeFlowDirection, _pIntakeFlowGC);
-	_exhaust.calcStateChange(_bExhaustFlowDirection, _pExhaustFlowGC);
+	//_intake.calcStateChange(_bIntakeFlowDirection, _pIntakeFlowGC);
+	//_exhaust.calcStateChange(_bExhaustFlowDirection, _pExhaustFlowGC);
 }
 
 void CombustionEngine::setPhiSpark(double sparkAngle) {
