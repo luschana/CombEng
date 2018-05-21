@@ -43,6 +43,7 @@ GasComponent::GasComponent(){
 	_H = _n_g * _cp * _T;
 	_combustionStarted = false;
 	_isContainer = false;
+	_dirtyFlag = false;
 }
 
 GasComponent::GasComponent(double V, double T, double p){
@@ -60,6 +61,7 @@ GasComponent::GasComponent(double V, double T, double p){
 	_H = _n_g * _cp * T;
 	_combustionStarted = false;
 	_isContainer = false;
+	_dirtyFlag = false;
 }
 
 GasComponent::GasComponent(double V, double T, double p, const double nu[defs::Fuel+1]){
@@ -78,6 +80,7 @@ GasComponent::GasComponent(double V, double T, double p, const double nu[defs::F
 	_H = _n_g * _cp * T;
 	_combustionStarted = false;
 	_isContainer = false;
+	_dirtyFlag = false;
 }
 
 GasComponent::GasComponent(double V, double T, double p, const double nu[defs::Fuel+1], bool isContainer){
@@ -96,6 +99,7 @@ GasComponent::GasComponent(double V, double T, double p, const double nu[defs::F
 	_H = _n_g * _cp * T;
 	_combustionStarted = false;
 	_isContainer = isContainer;
+	_dirtyFlag = false;
 }
 
 GasComponent* GasComponent::getFuelComponent() {
@@ -108,6 +112,7 @@ GasComponent* GasComponent::getFuelComponent() {
 	result->_H = 0.0;
 	result->_cp = Shomate::getInst()->getFuelHeatCapacity(result->_T);
 	result->_MW = MolWeights[defs::Fuel];
+	result->_dirtyFlag = false;
 	return result;
 }
 
@@ -117,6 +122,7 @@ GasComponent* GasComponent::getFuelComponent() {
 void GasComponent::setFuelComponent(double n_Fuel) {
 	_n_g = n_Fuel;
 	_H = - _n_g * Fuel_deltaH_vap;
+	_dirtyFlag = false;
 }
 
 void GasComponent::setCombustionStarted(bool combustionStarted) {
@@ -168,7 +174,7 @@ double GasComponent::getV() const {
  */
 void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasComponent* pOut){
 	_n_g=0.0;
-	if(A_crosssection > EPSILON && fabs(pIn->_p-pOut->_p) > EPSILON){
+	if(A_crosssection > EPSILON && fabs(pIn->_p-pOut->_p) > EPSILON*p_ref){
 		GasComponent *pSrc = pIn;
 		bool reverse = (pIn->_p < pOut->_p);
 		if(reverse){
@@ -184,6 +190,7 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
 		_H = _n_g*_cp*_T;
 		_V = _n_g*_v;
 		if(reverse) _n_g *= -1; // neg. flow ok
+		_dirtyFlag = true;
 	}
 }
 
@@ -192,21 +199,28 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
  */
 void GasComponent::calcStateChange(bool *add, const GasComponent **pgc){
 	for (int i = 0; i < Ncyl+1; i++) {
-		if(!add[i] && fabs(pgc[i]->_n_g)>EPSILON){
+		if(!add[i] && fabs(pgc[i]->_n_g)>EPSILON*Ts){
 			removeGC(pgc[i]);
 		}
 	}
 	for (int i = 0; i < Ncyl+1; i++) {
-		if(add[i] && fabs(pgc[i]->_n_g)>EPSILON){
+		if(add[i] && fabs(pgc[i]->_n_g)>EPSILON*Ts){
 			addGC(pgc[i]);
 		}
 	}
-	_MW = calcMolareWeight();
-	_v = _V/_n_g;
+
 	double T_est =_H/(_n_g*_cp); // (_H_act - _H_old)/(_n_g*_cp)
-	_cp = Shomate::getInst()->getHeatCapacity(T_est, _nu);
-	_T = _H/(_n_g * _cp);
-	_p = R*_T/_v;
+
+	if(_dirtyFlag){
+		_MW = calcMolareWeight();
+		_v = _V/_n_g;
+	}
+	if(_dirtyFlag || fabs(T_est - _T)>EPSILON){
+		_cp = Shomate::getInst()->getHeatCapacity(T_est, _nu);
+		_T = _H/(_n_g * _cp);
+		_p = R*_T/_v;
+		_dirtyFlag = false;
+	}
 }
 
 /*
@@ -232,27 +246,44 @@ void GasComponent::calcStateChange(double cmpFactor, double H_cooling, const Gas
 	_H += H_cooling;
 
 	deltaH = _H - deltaH; //now it's the delta
-	_MW = calcMolareWeight();
-	_v = _V/_n_g;
 
-	double dT_est = deltaH/(_n_g*_cp); // == dH/(n*cp)
-	/*if(_T + dT_est < 200) {
-		dT_est = 200 - _T; //debugging / Fangnetz -- should never occur!!
-		deltaH = dT_est * _cp * _n_g; // changed T&p to be nan instead of -0;
-	}*/
-	_cp = Shomate::getInst()->getHeatCapacity(_T + dT_est, _nu);
-	_T = _H/(_n_g * _cp);
-	_p = R*_T/_v;
+	double T_est = _T + deltaH/(_n_g*_cp);
+	if(_dirtyFlag){
+		_MW = calcMolareWeight();
+		_v = _V/_n_g;
+	}
+	if(_dirtyFlag || fabs(T_est - _T)>EPSILON){
+		_cp = Shomate::getInst()->getHeatCapacity(T_est, _nu);
+		_T = _H/(_n_g * _cp);
+		_p = R*_T/_v;
+		_dirtyFlag = false;
+	}
 }
 
 // --- private methods
+/*
+ * evaluate state change from change of enthalpy;
+ * V = const; p/T = const;
+ * _cp needs to be "upToDate"!
+ */
+void GasComponent::isochoricStateChange(double deltaH) {
+	if(fabs(deltaH)>0){
+		_p *= (1.0 + deltaH/_H); // results from: p1/p2 = T1/T2 = cp1*T1/cp2*T2;
+		_H +=deltaH;
+		// T = f(deltaH)...
+		double dT_est = deltaH/(_n_g*_cp);
+		_cp = Shomate::getInst()->getHeatCapacity(_T+dT_est, _nu); // cp close to the new temperature
+		_T = _H/(_n_g*_cp);
+		_dirtyFlag = false;
+	}
+}
 
 /*
  * take away the moles and enthalpy
  */
 void GasComponent::removeGC(const GasComponent *pgc){
 	double dn = fabs(pgc->_n_g);
-	if(dn>EPSILON){
+	if(dn>EPSILON*Ts){
 		if(_n_g > dn){
 			_n_g -= dn;
 			_H -= dn*_cp*_T;
@@ -260,6 +291,7 @@ void GasComponent::removeGC(const GasComponent *pgc){
 			_H -= (_n_g-EPSILON)*_cp*_T;
 			_n_g = EPSILON;
 		}
+		_dirtyFlag = true;
 	}
 }
 
@@ -268,11 +300,12 @@ void GasComponent::removeGC(const GasComponent *pgc){
  */
 void GasComponent::addGC(const GasComponent *pgc){
 	double dn = fabs(pgc->_n_g);
-	if(dn>EPSILON){
+	if(dn>EPSILON*Ts){
 		_H += pgc->_H;
 		for (int i = 0; i<defs::Fuel+1; i++) {
 			_nu[i] = (_nu[i]*_n_g + pgc->_nu[i]*dn)/(_n_g + dn);
 		}
+		_dirtyFlag = true;
 	}
 }
 
@@ -290,32 +323,11 @@ double GasComponent::isentropicStateChange(double cmpFactor) {
 		}else{ // compression
 			deltaH /= eta_is;
 		}
+		_dirtyFlag = true;
 	}
 	return deltaH;
 }
 
-/*
- * evaluate state change from change of enthalpy;
- * V = const; p/T = const;
- * _cp needs to be "upToDate"!
- */
-void GasComponent::isochoricStateChange(double deltaH) {
-	if(fabs(deltaH)>0){
-		_p *= (1.0 + deltaH/_H); // results from: p1/p2 = T1/T2 = cp1*T1/cp2*T2;
-		_H +=deltaH;
-		// T = f(deltaH)...
-		double dT_est = deltaH/(_n_g*_cp);
-		_cp = Shomate::getInst()->getHeatCapacity(_T+dT_est, _nu); // cp close to the new temperature
-		_T = _H/(_n_g*_cp);
-	}
-}
-
-/*
- * isentropic state change and enthalpy taken from itself
- */
-void GasComponent::adiabaticStateChange(double cmpFactor) {
-	isochoricStateChange(isentropicStateChange(cmpFactor));
-}
 
 double GasComponent::chemReaction(){
 	double deltaH = 0.0;
@@ -354,6 +366,7 @@ double GasComponent::chemReaction(){
 		_nu[defs::CO2]  += _n_chemR[3];
 		_nu[defs::O2]   -= 0.5*(_n_chemR[1] + _n_chemR[2] + _n_chemR[3]);
 		normalizeMols();
+		_dirtyFlag = true;
 	}
 	return deltaH;
 }
@@ -392,8 +405,9 @@ void GasComponent::normalizeMols(){
 		for (i = 0; i < defs::Fuel+1; i++) {
 			_nu[i] /= k;
 		}
+		_MW = calcMolareWeight();
+		_dirtyFlag = true;
 	}
-	_MW = calcMolareWeight();
 }
 
 /*
@@ -403,19 +417,5 @@ void GasComponent::setNu(const GasComponent *pSrc){
 	for (int i = 0; i < defs::Fuel+1; i++) {
 		_nu[i] = pSrc->_nu[i];
 	}
+	_dirtyFlag = true;
 }
-
-
-/*
- * calc the enthalpy needed for liquid->gas state change;
- */
-/*double GasComponent::injection(const GasComponent * pFuel){
-	double deltaH = 0.0;
-	double k = 1.0;
-	if(pFuel->_n_g > EPSILON){
-		deltaH = -pFuel->_n_g * Fuel_deltaH_vap;//  + Shomate::getInst()->getFuelHeatCapacity(T_ref)*T_ref - Shomate::getInst()->getFuelHeatCapacity(_T)*_T);
-		addGC(pFuel);
-	}
-	return deltaH;
-}*/
-

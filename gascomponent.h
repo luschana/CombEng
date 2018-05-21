@@ -62,30 +62,28 @@ public:
 	double getV() const;
 	bool isCombustionStarted() const;
 
-protected:
+private:
 	double _n_g, _nu[defs::Fuel+1];
 	double _T,_p,_v;
 	double _V,_H;
 	double _MW,_cp;
+	double _n_chemR[4];
 	bool _combustionStarted;
 	bool _isContainer;
-
-	//void transferFrom(double n, GasComponent &gc);
-	void normalizeMols();
+	bool _dirtyFlag; // mark attributes to be inconsistent
 
 
-private:
-	double _n_chemR[4];
+
 	double isentropicStateChange(double cmpFactor);
-	void adiabaticStateChange(double cmpFactor);
 	void isochoricStateChange(double deltaH);
-	//double injection(const GasComponent * pFuel);
 	double chemReaction();
 	double calcMolareWeight();
 	double calcMols();
 	void setNu(const GasComponent *pSrc);
 	void removeGC(const GasComponent *pgc);
 	void addGC(const GasComponent *pgc);
+	void normalizeMols();
+
 };
 
 #endif // GASCOMPONENT_H
