@@ -29,6 +29,10 @@ CombustionEngine* CombustionEngine::getInst(){
 	return _pInst;
 }
 
+const Cylinder& CombustionEngine::getCyl1() const {
+	return _cyl[0];
+}
+
 CombustionEngine::CombustionEngine() {
 	int i = 0;
 	_oil = Oil();
@@ -71,7 +75,7 @@ void CombustionEngine::run(double w, double thrPos) {
 	_cnt++;
 
 	//_pValveIntake->calcFlow(1.0, Environment::getInst()->getAmbientAir(), &_intake);
-	//_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getExhaustGas());
+	_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getExhaustGas());
 	_bIntakeFlowDirection[Ncyl] = (_pIntakeFlowGC[Ncyl]->getMols() > 0.0); // +n ==> add: from env to intake
 	_bExhaustFlowDirection[Ncyl] = !(_pExhaustFlowGC[Ncyl]->getMols() > 0.0); // +n ==> !add: from exhaust to env
 
@@ -144,8 +148,8 @@ double CombustionEngine::getH_Cooling() const {
 }
 
 unsigned long CombustionEngine::getCnt() const {
-		return _cnt;
-	}
+	return _cnt;
+}
 
 void CombustionEngine::setTempCoolingWater(double T_CW){
 	_T_CW = T_CW;

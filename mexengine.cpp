@@ -105,7 +105,7 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 	/*
 	 * [0::2]  M, phi, freq
 	 */
-	
+
 	y[3] = 0.0; engine->getCyl_T(0);
 	for (int i = 0; i < 6; i++) {
 		if (i < Ncyl){
@@ -133,6 +133,10 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 	y[22] = Environment::getInst()->getAmbientAir()->getMols();
 	y[23] = Environment::getInst()->getExhaustGas()->getMols();
 	// T1..6
+	y[27] = engine->getCyl1().getValveOut()->getGasComponent()->getP();
+	y[28] = engine->getCyl1().getValveOut()->getGasComponent()->getT();
+	y[29] = engine->getCyl1().getValveOut()->getGasComponent()->getMols();
+
 	y[30] = engine->getH_Cooling()/Ts;
 	y[31] = Environment::getInst()->getExhaustGas()->getP();
 }
