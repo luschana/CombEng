@@ -70,7 +70,8 @@ void CombustionEngine::run(double w, double thrPos) {
 	_cnt++;
 
 	_pValveIntake->calcFlow(1.0, Environment::getInst()->getAmbientAir(), &_intake);
-	_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getExhaustGas());
+	//_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getExhaustGas());
+	_pValveExhaust->calcFlow(1.0, &_exhaust, Environment::getInst()->getAmbientAir());
 	_bIntakeFlowDirection[Ncyl] = (_pIntakeFlowGC[Ncyl]->getMols() > 0.0); // +n ==> add: from env to intake
 	_bExhaustFlowDirection[Ncyl] = !(_pExhaustFlowGC[Ncyl]->getMols() > 0.0); // +n ==> !add: from exhaust to env
 
