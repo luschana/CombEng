@@ -192,7 +192,7 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
 		_H = _n_g*_cp*_T;
 		_V = _n_g*_v;
 		if(reverse) _n_g *= -1; // neg. flow ok
-		_dirtyFlag = true;
+		_dirtyFlag = pSrc->_dirtyFlag;
 	}
 }
 
