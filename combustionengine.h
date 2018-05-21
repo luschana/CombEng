@@ -42,6 +42,7 @@ public:
 	void setTempCoolingWater(double T_CW);
 	const GasComponent& getExhaust() const;
 	const GasComponent& getIntake() const;
+	const Cylinder& getCyl1() const;
 	double getThrPos() const;
 	double getW() const;
 	double getMShaft() const;
