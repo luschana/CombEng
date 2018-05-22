@@ -56,6 +56,7 @@ public:
 	double getHxGas() const;
 	double getPressure() const;
 	double getTemperature() const;
+	const GasComponent &getGasComponent() const;
 	Valve *getValveIn() const;
 	Valve *getValveOut() const;
 

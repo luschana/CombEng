@@ -128,6 +128,9 @@ Valve* Cylinder::getValveOut() const {
 	return _pValveOut;
 }
 
+const GasComponent & Cylinder::getGasComponent() const {
+	return _gc;
+}
 
 void Cylinder::run(double dPhi){
 	_phi += dPhi;

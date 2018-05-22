@@ -58,7 +58,7 @@ void Valve::calcFlow(double phi, GasComponent* pIn, GasComponent* pOut) {
 	_pgc->calcFlow(getCrosssection(phi), pIn, pOut);
 }
 
-const GasComponent* Valve::getGasComponent() {
+const GasComponent *Valve::getGasComponent() {
 	return _pgc;
 }
 

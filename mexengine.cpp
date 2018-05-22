@@ -137,6 +137,10 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 	y[22] = Environment::getInst()->getAmbientAir()->getMols();
 	y[23] = Environment::getInst()->getExhaustGas()->getMols();
 	// T1..6
+	y[24] = engine->getCyl1().getGasComponent().getP();
+	y[25] = engine->getCyl1().getGasComponent().getT();
+	y[26] = engine->getCyl1().getGasComponent().getMols();
+
 	y[27] = engine->getCyl1().getValveOut()->getGasComponent()->getP();
 	y[28] = engine->getCyl1().getValveOut()->getGasComponent()->getT();
 	y[29] = engine->getCyl1().getValveOut()->getGasComponent()->getMols();
