@@ -73,6 +73,7 @@ private:
 
 	void cleanUpStateChange(double T_estimate);
 	double isentropicStateChange(double cmpFactor);
+	double isentropicEnthalpyChange(double cmpFactor);
 	double chemReaction();
 	double calcMolareWeight();
 	double calcMols();

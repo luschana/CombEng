@@ -287,6 +287,7 @@ void GasComponent::removeGC(const GasComponent *pgc){
 			_H -= (_n_g-EPSILON)*_cp*_T;
 			_n_g = EPSILON;
 		}
+		_H += isentropicEnthalpyChange((_n_g + dn)/_n_g); // v1/v0 = n0/n1
 		_dirtyFlag = true;
 	}
 }
@@ -298,22 +299,34 @@ void GasComponent::addGC(const GasComponent *pgc){
 	double dn = fabs(pgc->_n_g);
 	if(dn>EPSILON*Ts){
 		_H += pgc->_H;
+		_H += isentropicEnthalpyChange(_n_g/(_n_g + dn));
 		for (int i = 0; i<defs::Fuel+1; i++) {
 			_nu[i] = (_nu[i]*_n_g + pgc->_nu[i]*dn)/(_n_g + dn);
 		}
+		_n_g += dn;
 		_dirtyFlag = true;
 	}
+}
+
+/* calculates the enthalpy difference
+ * cmpFactor: V_i/V_(i-1)
+ */
+double GasComponent::isentropicEnthalpyChange(double cmpFactor) {
+	double deltaH = 0.0;
+	if(fabs(cmpFactor-1.0)>EPSILON){
+		deltaH = _H*(pow(cmpFactor, 1.0/(1.0 - _cp/R)) - 1.0);
+	}
+	return deltaH;
 }
 
 /* calculates the enthalpy difference but does not change the state values
  * cmpFactor: V_i/V_(i-1)
  */
 double GasComponent::isentropicStateChange(double cmpFactor) {
-	double deltaH = 0.0;
+	double deltaH = isentropicEnthalpyChange(cmpFactor);
 	if(fabs(cmpFactor-1.0)>EPSILON){
 		_V*=cmpFactor;
 		_v*=cmpFactor;
-		deltaH = _H*(pow(cmpFactor, 1.0/(1.0 - _cp/R)) - 1.0);
 		if(cmpFactor > 1.0){// expansion
 			deltaH *= eta_is;
 		}else{ // compression
