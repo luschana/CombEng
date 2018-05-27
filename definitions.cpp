@@ -31,3 +31,13 @@ double getFuelVaporizationEnthaly(double T, double Tmin, double Tmax, double A, 
 	T=T/Tc;
 	return A*exp(-a*T)*pow(1.0-T, b);
 }
+
+/*
+ * Antoine Equation
+ * returns: p [Pa];
+ * params: T [K], relHum [%];
+ */
+double getPressureFromRelHum(double T, double relHum){
+	return pow(10, 3 + WaterAntoinePars[0] - WaterAntoinePars[1]/(WaterAntoinePars[2]+T)) * relHum; // [Pa] = 10^5 [bar] * [%] / 100
+}
+

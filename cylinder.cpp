@@ -179,8 +179,11 @@ void Cylinder::calcHeatExchange(){
 	_T_cyl += (-_H_hx_gas - _H_cooling + fabs(_F_fr*_dx_p))/hx_C_W; // gas hx && friction
 }
 
+/*
+ * V_i/V_i-1
+ */
 double Cylinder::getCmpFactor() const {
-	return 1.0/ (1.0 + _dx_p/(hCyl-_x_p));
+	return 1.0/ (1.0 + _dx_p/(hCyl-_x_p)); // h1/h0...
 }
 
 /*
@@ -190,20 +193,4 @@ bool Cylinder::passedAngle(double alpha, double dphi) {
 	return (alpha < _phi && _phi <= alpha + dphi);
 }
 
-/**
- * calc the mols of fuel to be injected
- */
-/*double Cylinder::calcFuelInj() {
-	double result = 0.0;
-	if(_n_Fuel > EPSILON && _phi >= _pEcu->getPhiInjection()){
-		if(_n_Fuel > Fuel_n_Inject){
-			result = Fuel_n_Inject;
-			_n_Fuel -= Fuel_n_Inject;
-		}else{
-			result = _n_Fuel;
-			_n_Fuel = 0.0;
-		}
-	}
-	return result;
-}*/
 

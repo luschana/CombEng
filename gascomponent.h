@@ -23,8 +23,6 @@
 
 #include "definitions.h"
 
-double getPressureFromRelHum(double T, double relHum);
-
 class GasComponent
 {
 public:
@@ -33,11 +31,6 @@ public:
 	GasComponent(double V, double T, double p);
 	GasComponent(double V, double T, double p, const double nu[defs::Fuel+1]);
 	GasComponent(double V, double T, double p, const double nu[defs::Fuel+1], bool isContainer);
-
-	/*
-	 * remove mols from higher pressured component and mix it to the other
-	 */
-	//void calcGasExchange(double A_crosssection, GasComponent *pgc);
 
 	/*
 	 * calc the gc that flows from in to out

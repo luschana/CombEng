@@ -20,14 +20,6 @@
 
 #include "gascomponent.h"
 
-/*
- * returns: p [Pa];
- * params: T [K], relHum [%];
- */
-double getPressureFromRelHum(double T, double relHum){
-	return pow(10, 3 + WaterAntoinePars[0] - WaterAntoinePars[1]/(WaterAntoinePars[2]+T)) * relHum; // [Pa] = 10^5 [bar] * [%] / 100
-}
-
 GasComponent::GasComponent(){
 	_T=T_ref;
 	_p=p_ref;
@@ -302,7 +294,7 @@ void GasComponent::addGC(const GasComponent *pgc){
 	double dn = fabs(pgc->_n_g);
 	if(dn>EPSILON*Ts){
 		_H += pgc->_H;
-		_H += isentropicEnthalpyChange(_n_g/(_n_g + dn));
+		_H += isentropicEnthalpyChange(_n_g/(_n_g + dn)); // V0/V1 ~ n1/n0
 		for (int i = 0; i<defs::Fuel+1; i++) {
 			_nu[i] = (_nu[i]*_n_g + pgc->_nu[i]*dn)/(_n_g + dn);
 		}
@@ -312,7 +304,8 @@ void GasComponent::addGC(const GasComponent *pgc){
 }
 
 /* calculates the enthalpy difference
- * cmpFactor: V_i/V_(i-1)
+ * cmpFactor: v1/v0
+ * H1/H0~T1/T0~(v0/v1)^(k-1) = (v1/v0)^(1-k)
  */
 double GasComponent::isentropicEnthalpyChange(double cmpFactor) {
 	double deltaH = 0.0;

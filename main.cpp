@@ -21,7 +21,7 @@ void testPt(bool *bArray, GasComponent **pgc){
 int main(int argc, char **argv) {
 	CombustionEngine* pCE = CombustionEngine::getInst();
 	double w = 60;
-	double thrPos = 0.0;
+	double thrPos = 0.1;
 	while(true){
 		pCE->run(w, thrPos);
 	}
