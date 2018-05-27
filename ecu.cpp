@@ -10,10 +10,10 @@
 Ecu::Ecu() {
 	_phiSpark = (1.0 - 10.0/180.0)*M_PI;
 	_phiInjection = (1.0 - 10.0/180.0)*M_PI;
-	_phiValveOutOpen = (2.0	-	0.0/180.0)*M_PI;
-	_phiValveOutClose = (3.0+	0.0/180.0)*M_PI;
+	_phiValveOutOpen = (2.0	-	30.0/180.0)*M_PI;
+	_phiValveOutClose = (3.0+	10.0/180.0)*M_PI;
 	_phiValveInOpen = (3.0	-	0.0/180.0)*M_PI;
-	_phiValveInClose = (4.0	+	0.0/180.0)*M_PI;
+	_phiValveInClose = (4.0	+	30.0/180.0)*M_PI;
 	_throttlePosition = 0.0;
 	_w = 0.0;
 	_n_fuel_consumed = 0.0;
