@@ -176,7 +176,7 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
 		}
 		_n_g = A_crosssection * sqrt( 2.0*fabs(pIn->_p - pOut->_p)*pSrc->_MW/pSrc->_v )*Ts; // sqrt of delta p!!!
 		if((pSrc->_n_g - _n_g) < EPSILON) {
-			_n_g = pSrc->_n_g -EPSILON;
+			_n_g = pSrc->_n_g - EPSILON;
 		}
 		_p = pDest->_p;
 		_T = pSrc->_T;

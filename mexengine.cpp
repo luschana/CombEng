@@ -110,10 +110,11 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 	for (int i = 0; i < 6; i++) {
 		if (i < Ncyl){
 			y[3] += engine->getCyl_T(i);
-			y[16+i] = engine->getp_Cyl(i);
-			y[24+i] = engine->getT_Cyl(i);
+			y[18+i] = engine->getp_Cyl(i);
+			y[25+i] = engine->getT_Cyl(i);
 		}else{
 			y[16+i] = 0.0;
+			y[25+i] = 0.0;
 		}
 	}
 	y[3] /= Ncyl;
@@ -122,7 +123,20 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 	y[6] = engine->getIntake().getT();
 	y[7] = engine->getExhaust().getP();
 	y[8] = engine->getExhaust().getT();
-	y[9] = engine->getExhaust().getNu()[defs::O2];
+
+	y[9] = engine->getCyl1().getValveIn()->getGasComponent()->getP();
+	y[10] = engine->getCyl1().getValveIn()->getGasComponent()->getT();
+	y[11] = engine->getCyl1().getValveIn()->getGasComponent()->getMols();
+
+	y[12] = engine->getCyl1().getGasComponent().getP();
+	y[13] = engine->getCyl1().getGasComponent().getT();
+	y[14] = engine->getCyl1().getGasComponent().getMols();
+
+	y[15] = engine->getCyl1().getValveOut()->getGasComponent()->getP();
+	y[16] = engine->getCyl1().getValveOut()->getGasComponent()->getT();
+	y[17] = engine->getCyl1().getValveOut()->getGasComponent()->getMols();
+
+/*	y[9] = engine->getExhaust().getNu()[defs::O2];
 	y[10] = engine->getExhaust().getNu()[defs::H2O];
 	y[11] = engine->getExhaust().getNu()[defs::CO2];
 	y[12] = engine->getExhaust().getNu()[defs::CO];
@@ -147,6 +161,7 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 
 	y[30] = engine->getH_Cooling()/Ts;
 	y[31] = Environment::getInst()->getExhaustGas()->getP();
+*/
 }
 
 /* Define to indicate that this S-Function has the mdlG[S]etSimState methods */
