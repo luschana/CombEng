@@ -183,7 +183,10 @@ void GasComponent::calcFlow(double A_crosssection, GasComponent* pIn, GasCompone
 			pDest = pIn;
 		}
 		_n_g = A_crosssection * sqrt( 2.0*fabs(pIn->_p - pOut->_p)*pSrc->_MW/pSrc->_v )*Ts; // sqrt of delta p!!!
-		_p = pDest->_p; //the kinetic energy is recuperated, so ?src? ... nevertheless it has no influnce on _H
+		if((pSrc->_n_g - _n_g) < EPSILON) {
+			_n_g = pSrc->_n_g -EPSILON;
+		}
+		_p = pDest->_p;
 		_T = pSrc->_T;
 		setNu(pSrc);
 		_cp = pSrc->_cp;
