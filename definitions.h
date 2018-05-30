@@ -21,7 +21,12 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-#include <math.h>
+#define _USE_MATH_DEFINES // for C++  
+#include <cmath>  
+  
+#define _USE_MATH_DEFINES // for C  
+#include <math.h>  
+
 #include "shomate.h"
 
 /* Calculate the enthalpy of vaporization
