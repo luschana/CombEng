@@ -43,7 +43,7 @@ const double EPSILON = pow(10.0,-9.0); // max deviation of double numbers
 
 // engine consts
 // mechanical
-const int Ncyl = 1; // number of cylinders
+const int Ncyl = 4; // number of cylinders
 const double Vcyl = 0.5*pow(10.0,-3.0); //[m3] cylinder volume
 const double chi = 12.0; // compression factor
 const double w_engine_min = 150.0*M_PI/30.0; // minimum engine speed -- injection starting point
@@ -85,7 +85,7 @@ const double Oil_p[6] = {273.15 + 25.0, 0.1, 273.15 + 150.0, 0.003, 500.0, 10}; 
 // fuel definitions
 //static const double Hf_ref = 50.0*1000.0*1000.0; // [J/kg]
   //defined in ShData_Fuel: static const double H_fuel_form = -208700; // [J/mol] enthalpy of formation (http://webbook.nist.gov/cgi/cbook.cgi?ID=C111659&Units=SI&Mask=1)
-const double Fuel_n_C = 10.0;
+const double Fuel_n_C = 8.0;
 const double Fuel_O2_req = Fuel_n_C * 1.5 + 0.5; //[mol_O2/mol_Fuel] mols of O2 for stoichiometric reaction of an alkane
 // injection
 const double Fuel_n_Inject = nu_Air[defs::O2]*(p_ref*Vcyl/(R*T_ref))/Fuel_O2_req*(Ts/(2*pow(10.0,-3.0))); //[mol/s] molare amount injected per sample (def.: duration = 2 ms for "std filled" cyl)
