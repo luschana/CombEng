@@ -72,7 +72,7 @@ const double V_intake = Vcyl*(10.0+Ncyl*2.0); //[m3] volume of intake manifold
 const double V_exhaust = V_intake*2.0; //[m3] volume of exhaust pipe
 // heat transfer
 const double hx_a_CW = 400.0; // [J/(K s)] heat transfer coefficient cooling water <-> wall
-const double hx_a_CG = 00.0; //800 [J/(K m2 s)] heat transfer coefficient wall <-> gas (delta T ~300K; 10kW thermal flow rate)
+const double hx_a_CG = 800.0; //800 [J/(K m2 s)] heat transfer coefficient wall <-> gas (delta T ~300K; 10kW thermal flow rate)
 const double hx_C_W = 15000.0; // [J/K] heat capacity of wall
 
 // standard definitions
