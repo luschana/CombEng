@@ -35,9 +35,7 @@ static void mdlInitializeSizes(SimStruct *S){
     int nPortCntOut = 32;
     if (!ssSetNumInputPorts(S, 1)) return;
     ssSetInputPortWidth(S, 0, nPortCntIn);
-    for (int i = 0; i < nPortCntIn; i++) {
-        ssSetInputPortDirectFeedThrough(S, i, 1);
-    }
+    ssSetInputPortDirectFeedThrough(S, 0, 1);
     if (!ssSetNumOutputPorts(S,1)) return;
     ssSetOutputPortWidth(S, 0, nPortCntOut);
 
