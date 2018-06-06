@@ -113,7 +113,7 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 			y[18+i] = engine->getp_Cyl(i);
 			y[25+i] = engine->getT_Cyl(i);
 		}else{
-			y[16+i] = 0.0;
+			y[18+i] = 0.0;
 			y[25+i] = 0.0;
 		}
 	}
