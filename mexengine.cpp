@@ -31,11 +31,15 @@ static void mdlInitializeSizes(SimStruct *S){
     }
 
     // Specify I/O
+    int nPortCntIn = 5;
+    int nPortCntOut = 32;
     if (!ssSetNumInputPorts(S, 1)) return;
-    ssSetInputPortWidth(S, 0, 5);
-    ssSetInputPortDirectFeedThrough(S, 0, 1);
+    ssSetInputPortWidth(S, 0, nPortCntIn);
+    for (int i = 0; i < nPortCntIn; i++) {
+        ssSetInputPortDirectFeedThrough(S, i, 1);
+    }
     if (!ssSetNumOutputPorts(S,1)) return;
-    ssSetOutputPortWidth(S, 0, 32);
+    ssSetOutputPortWidth(S, 0, nPortCntOut);
 
     ssSetNumSampleTimes(S, 1);
 
