@@ -147,6 +147,20 @@ double CombustionEngine::getH_Cooling() const {
 	return result;
 }
 
+/*
+ * returns the moles to be transfered [mol]
+ */
+double CombustionEngine::getFlow_Intake() const {
+	return _pValveIntake->getGasComponent()->getMols();
+}
+
+/*
+ * returns the moles to be transfered [mol]
+ */
+double CombustionEngine::getFlow_Exhaust() const {
+	return _pValveExhaust->getGasComponent()->getMols();
+}
+
 unsigned long CombustionEngine::getCnt() const {
 	return _cnt;
 }

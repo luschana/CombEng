@@ -52,6 +52,8 @@ public:
 	double getCyl_T(int cylNum) const;
 	double getFuelConsumption() const;
 	double getH_Cooling() const;
+	double getFlow_Intake() const;
+	double getFlow_Exhaust() const;
 	unsigned long getCnt() const;
 
 protected:
