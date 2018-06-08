@@ -66,7 +66,7 @@ const double A_Valve_out = k_Aval * ACyl; // cross section of outlet valves
 const double A_Valve_in = k_Aval * ACyl; // cross section of inlet valves
 const int num_Valve = 2; // number of inlet and outlet valve per cylinder;
 
-const double A_intake = A_Valve_in * (1.0+Ncyl/2.0); // cross section of intake
+const double A_intake = A_Valve_in * 2.0 * (2.0+Ncyl); // cross section of intake
 const double A_exhaust = A_intake; // (min.) cross section of the exhaust gas pipe
 const double V_intake = Vcyl*(10.0+Ncyl*2.0); //[m3] volume of intake manifold
 const double V_exhaust = V_intake*2.0; //[m3] volume of exhaust pipe

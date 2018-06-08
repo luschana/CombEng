@@ -16,5 +16,6 @@ Deploy*/
 *.m
 *.mat
 *~
-
+*.pdf
+rtt.ini
 #eof

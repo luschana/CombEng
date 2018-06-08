@@ -31,7 +31,7 @@ static void mdlInitializeSizes(SimStruct *S){
     }
 
     // Specify I/O
-    int nPortCntIn = 5;
+    int nPortCntIn = 7;
     int nPortCntOut = 32;
     if (!ssSetNumInputPorts(S, 1)) return;
     ssSetInputPortWidth(S, 0, nPortCntIn);
@@ -92,51 +92,61 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 	engine->setPhiSpark(*u[2]); // [degree] if(sparkAngle >= -40.0 && sparkAngle <= 20.0)
 	engine->setPhiInjection(*u[3]);
 	engine->setTempCoolingWater(*u[4]);
+	/*
+	 * [0::3]  M, dotQ, phi, freq
+	 */
 	y[0] = 0.0;
-	y[2] = engine->getPhi(); // get phi from prev. time step
+    y[1] = 0.0;
+    y[5] = engine->getFuelConsumption();
+    y[6] = 0.0;
+	y[9] = 0.0;
+	y[3] = engine->getPhi(); // get phi from prev. time step
     for (int i = 0; i < 10; i++) {
 		engine->run(*u[0], *u[1]); // [rad/s] , [-] 0..1
 		y[0] += engine->getMShaft();
+        y[1] += engine->getH_Cooling(); //deltaH
+        y[6] += 0.0;
+        y[9] += 0.0;
 	}
     y[0]/=10.0;
-	y[1] = engine->getPhi();
-	if((y[2] > y[1])&&(y[2]-y[1] > 11)){ // phi reset!
-		y[2] -= 4.0*M_PI;
+    y[1]/=(Ts*10.0); //dotQ
+	y[2] = engine->getPhi();
+	if((y[3] > y[2])&&(y[3]-y[2] > 11)){ // phi reset!
+		y[3] -= 4.0*M_PI;
 	}
-	y[2]=(y[1]-y[2])/(2*M_PI)*10000; //frequency of rotation
-	/*
-	 * [0::2]  M, phi, freq
-	 */
+	y[3]=(y[2]-y[3])/(2*M_PI)*10000; //frequency of rotation
 
-	y[3] = 0.0; engine->getCyl_T(0);
+    y[5] = (engine->getFuelConsumption() - y[5])/(Ts*10.0); // delta to dot
+
+    y[4] = 0.0;
 	for (int i = 0; i < 6; i++) {
 		if (i < Ncyl){
-			y[3] += engine->getCyl_T(i);
-			y[18+i] = engine->getp_Cyl(i);
-			y[25+i] = engine->getT_Cyl(i);
+			y[4] += engine->getCyl_T(i);
+			y[19+i] = engine->getp_Cyl(i);
+			y[26+i] = engine->getT_Cyl(i);
 		}else{
-			y[18+i] = 0.0;
-			y[25+i] = 0.0;
+			y[19+i] = 0.0;
+			y[26+i] = 0.0;
 		}
 	}
-	y[3] /= Ncyl;
-	y[4] = engine->getFuelConsumption();
-	y[5] = engine->getIntake().getP();
-	y[6] = engine->getIntake().getT();
-	y[7] = engine->getExhaust().getP();
-	y[8] = engine->getExhaust().getT();
+	y[4] /= Ncyl;
 
-	y[9] = engine->getCyl1().getValveIn()->getGasComponent()->getP();
-	y[10] = engine->getCyl1().getValveIn()->getGasComponent()->getT();
-	y[11] = engine->getCyl1().getValveIn()->getGasComponent()->getMols();
+    y[6] = engine->getIntake().getP();
+	y[7] = engine->getIntake().getT();
+	y[8] = engine->getExhaust().getP();
+	y[9] = engine->getExhaust().getT();
 
-	y[12] = engine->getCyl1().getGasComponent().getP();
-	y[13] = engine->getCyl1().getGasComponent().getT();
-	y[14] = engine->getCyl1().getGasComponent().getMols();
+	y[10] = engine->getCyl1().getValveIn()->getGasComponent()->getP();
+	y[11] = engine->getCyl1().getValveIn()->getGasComponent()->getT();
+	y[12] = engine->getCyl1().getValveIn()->getGasComponent()->getMols();
 
-	y[15] = engine->getCyl1().getValveOut()->getGasComponent()->getP();
-	y[16] = engine->getCyl1().getValveOut()->getGasComponent()->getT();
-	y[17] = engine->getCyl1().getValveOut()->getGasComponent()->getMols();
+	y[13] = engine->getCyl1().getGasComponent().getP();
+	y[14] = engine->getCyl1().getGasComponent().getT();
+	y[15] = engine->getCyl1().getGasComponent().getMols();
+
+	y[16] = engine->getCyl1().getValveOut()->getGasComponent()->getP();
+	y[17] = engine->getCyl1().getValveOut()->getGasComponent()->getT();
+	y[18] = engine->getCyl1().getValveOut()->getGasComponent()->getMols();
 
 /*	y[9] = engine->getExhaust().getNu()[defs::O2];
 	y[10] = engine->getExhaust().getNu()[defs::H2O];
