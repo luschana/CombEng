@@ -154,8 +154,11 @@ void Cylinder::run(double dPhi){
 	//force of friction: F = eta(T) * A * v/d; M = F*r(phi)
 	_F_fr = _pOil->getEta(_T_cyl)* 2*r_cs*M_PI*h_Piston * _v_p / d_Piston;
 	_M_p = m_Piston*_dv_p / Ts * r_cs * sin(_phi)- fabs(_F_fr * r_cs*sin(_phi)); // speed dep. && friction
-	if(passedAngle(_pEcu->getPhiInjection(),  dPhi)){
+	/*if(passedAngle(_pEcu->getPhiInjection(),  dPhi)){ // too much fuel...
 		_pInj->fill(_pEcu->fillInjector(_pintake->getP(), _pintake->getT()));
+	}*/
+	if(passedAngle(_pEcu->getPhiValveInClose(),  dPhi)){
+		_pInj->fill(_pEcu->fillInjector(_gc.getP(), _gc.getT()));
 	}
 	if(passedAngle(_pEcu->getPhiSpark(),  dPhi)){
 		_gc.setCombustionStarted(true);
