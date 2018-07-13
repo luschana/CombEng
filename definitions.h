@@ -48,9 +48,9 @@ const double EPSILON = pow(10.0,-9.0); // max deviation of double numbers
 
 // engine consts
 // mechanical
-const int Ncyl = 1; // number of cylinders
+const int Ncyl = 3; // number of cylinders
 const double Vcyl = 0.5*pow(10.0,-3.0); //[m3] cylinder volume
-const double chi = 12.0; // compression factor
+const double chi = 18.0; // compression factor
 const double w_engine_min = 150.0*M_PI/30.0; // minimum engine speed -- injection starting point
 const double w_engine_max = 12000.0*M_PI/30.0; // maximum engine speed -- injection end point
 const double l2r = 2.5; //[m/m] pleuel to crank shaft radius
@@ -90,7 +90,7 @@ const double Oil_p[6] = {273.15 + 25.0, 0.1, 273.15 + 150.0, 0.003, 500.0, 10}; 
 // fuel definitions
 //static const double Hf_ref = 50.0*1000.0*1000.0; // [J/kg]
   //defined in ShData_Fuel: static const double H_fuel_form = -208700; // [J/mol] enthalpy of formation (http://webbook.nist.gov/cgi/cbook.cgi?ID=C111659&Units=SI&Mask=1)
-const double Fuel_n_C = 8.0;
+const double Fuel_n_C = 10.0;
 const double Fuel_O2_req = Fuel_n_C * 1.5 + 0.5; //[mol_O2/mol_Fuel] mols of O2 for stoichiometric reaction of an alkane
 // injection
 const double Fuel_n_Inject = nu_Air[defs::O2]*(p_ref*Vcyl/(R*T_ref))/Fuel_O2_req*(Ts/(2*pow(10.0,-3.0))); //[mol/s] molare amount injected per sample (def.: duration = 2 ms for "std filled" cyl)
@@ -111,8 +111,8 @@ const double WaterAntoinePars[3] = {5.40221, 1838.675, -31.737}; // Antoine pars
  * Octane	298		426		58.46		0.1834	0.3324	568.8
  * Decane	298		444		74.38		=b		0.3238	617.4
  */
-const double Fuel_deltaH_vap = getFuelVaporizationEnthaly(T_ref, 298, 426, 58460.0, 0.1834, 0.3324, 568.8); // Octane
-//const double Fuel_deltaH_vap = getFuelVaporizationEnthaly(T_ref, 298, 444, 74380.0, 0.3238, 0.3238, 617.4); // Decane
+//const double Fuel_deltaH_vap = getFuelVaporizationEnthaly(T_ref, 298, 426, 58460.0, 0.1834, 0.3324, 568.8); // Octane
+const double Fuel_deltaH_vap = getFuelVaporizationEnthaly(T_ref, 298, 444, 74380.0, 0.3238, 0.3238, 617.4); // Decane
 
 const double Shomate_T_min = 298.0; // lower "limit" of temperature range for Shomate data
 const double Shomate_T_max = 6000.0; // upper "limit" of temperature range for Shomate data
@@ -131,14 +131,15 @@ const ShDataEntry ShData_CO[2] = {
 		ShDataEntry(298.0, 1300.0, 25.56759, 6.09613, 4.054656, -2.671301, 0.131021, -118.0089, 227.3665, -110527.1),
 		ShDataEntry(1300.0, 6000.0, 35.1507, 1.300095, -0.205921, 0.01355, -3.28278, -127.8375, 231.712, -110527.1)};
 //Octane
-const ShDataEntry ShData_Fuel[2] = {
+/*const ShDataEntry ShData_Fuel[2] = {
 		ShDataEntry(273.15, 1500.00, -15.099746, 812.885005, -470.100290, 104.388739, 0.0, 0.0, 0.0, -208700.0),
 		ShDataEntry(1500.0, 6000.0, 497.90, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -208700.0)};
+ */
 //Decane decane_cp.dat -- parameter fit from NIST cp vals
-/*const ShDataEntry ShData_Fuel[2] = {
+const ShDataEntry ShData_Fuel[2] = {
 ShDataEntry(273.15, 1500.00, -23.451399, 1034.734569, -620.745347, 141.993960, 0.0, 0.0, 0.0, -249700.0),
 ShDataEntry(1500.00, 6000.00, 610.860000, 0.000000, 0.000000, 0.000000, 0.0, 0.0, 0.0, -249700.0)};
-*/
+
 
 const ShData ShDataDB[defs::Fuel+1] = {ShData(1, ShData_N2), ShData(1, ShData_O2),
 		ShData(2, ShData_H2O), ShData(2, ShData_CO2), ShData(2, ShData_CO),
