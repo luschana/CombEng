@@ -157,7 +157,7 @@ void Cylinder::run(double dPhi){
 	/*if(passedAngle(_pEcu->getPhiInjection(),  dPhi)){ // too much fuel...
 		_pInj->fill(_pEcu->fillInjector(_pintake->getP(), _pintake->getT()));
 	}*/
-	if(passedAngle(_pEcu->getPhiValveInClose(),  dPhi)){
+	if(passedAngle(3.0*M_PI,  dPhi)){
 		_pInj->fill(_pEcu->fillInjector(_gc.getP(), _gc.getT()));
 	}
 	if(passedAngle(_pEcu->getPhiSpark(),  dPhi)){
