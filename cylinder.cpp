@@ -20,16 +20,6 @@
 
 #include "cylinder.h"
 
-double normalizeCranckAngle(double phi) {
-	double result = phi;
-	if(phi < 0.0) {
-		result += 4*M_PI;
-	}else if(phi >= 4*M_PI){
-		result -= 4*M_PI;
-	}
-	return result;
-}
-
 Cylinder::Cylinder(){
 	_phi = 0.0;
 	_x_p = 0.0;

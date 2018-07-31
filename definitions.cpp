@@ -41,3 +41,15 @@ double getPressureFromRelHum(double T, double relHum){
 	return pow(10, 3 + WaterAntoinePars[0] - WaterAntoinePars[1]/(WaterAntoinePars[2]+T)) * relHum; // [Pa] = 10^5 [bar] * [%] / 100
 }
 
+/*
+ * "project" any number to the operating range of a 4-stroke combustion engine: [0.0 .. 4*pi[
+ */
+double normalizeCranckAngle(double phi) {
+	double result = phi;
+	if(phi < 0.0) {
+		result += 4*M_PI;
+	}else if(phi >= 4*M_PI){
+		result -= 4*M_PI;
+	}
+	return result;
+}

@@ -42,6 +42,11 @@ double getFuelVaporizationEnthaly(double T, double Tmin, double Tmax, double A, 
  */
 double getPressureFromRelHum(double T, double relHum);
 
+/*
+ * "project" any number to the operating range of a 4-stroke combustion engine: [0.0 .. 4*pi[
+ */
+double normalizeCranckAngle(double phi);
+
 // calc consts
 const double Ts = 10.0*pow(10.0,-6.0); //[s] cycle time
 const double EPSILON = pow(10.0,-9.0); // max deviation of double numbers
