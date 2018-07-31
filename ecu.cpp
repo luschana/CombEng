@@ -6,6 +6,7 @@
  */
 
 #include "ecu.h"
+#include "cylinder.h"
 
 Ecu::Ecu() {
 	_phiSpark = (1.0 - 10.0/180.0)*M_PI;
@@ -20,19 +21,19 @@ Ecu::Ecu() {
 }
 
 double Ecu::getPhiValveInOpen() {
-	return _phiValveInOpen;
+	return normalizeCranckAngle(_phiValveInOpen);
 }
 
 double Ecu::getPhiValveInClose() {
-	return _phiValveInClose;
+	return normalizeCranckAngle(_phiValveInClose);
 }
 
 double Ecu::getPhiValveOutOpen() {
-	return _phiValveOutOpen;
+	return normalizeCranckAngle(_phiValveOutOpen);
 }
 
 double Ecu::getPhiValveOutClose() {
-	return _phiValveOutClose;
+	return normalizeCranckAngle(_phiValveOutClose);
 }
 
 void Ecu::setPhiValveInClose(double phiValveInClose) {

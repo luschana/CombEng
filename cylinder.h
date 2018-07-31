@@ -28,7 +28,7 @@
 #include "injector.h"
 #include "oil.h"
 
-
+double normalizeCranckAngle(double phi);
 
 class Cylinder
 {
