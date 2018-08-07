@@ -76,8 +76,8 @@ const double A_exhaust = A_intake; // (min.) cross section of the exhaust gas pi
 const double V_intake = Vcyl*(10.0+Ncyl*2.0); //[m3] volume of intake manifold
 const double V_exhaust = V_intake*2.0; //[m3] volume of exhaust pipe
 // heat transfer
-const double hx_a_CW = 400.0; // [J/(K s)] heat transfer coefficient cooling water <-> wall
-const double hx_a_CG = 800.0; //800 [J/(K m2 s)] heat transfer coefficient wall <-> gas (delta T ~300K; 10kW thermal flow rate)
+const double hx_a_CW = 300.0; // [J/(K s)] heat transfer coefficient cooling water <-> wall
+const double hx_a_CG = 500.0; //800 [J/(K m2 s)] heat transfer coefficient wall <-> gas (delta T ~300K; 10kW thermal flow rate)
 const double hx_C_W = 15000.0; // [J/K] heat capacity of wall
 
 // standard definitions
@@ -99,11 +99,11 @@ const double Fuel_n_C = 10.0;
 const double Fuel_O2_req = Fuel_n_C * 1.5 + 0.5; //[mol_O2/mol_Fuel] mols of O2 for stoichiometric reaction of an alkane
 // injection
 const double Fuel_n_Inject = nu_Air[defs::O2]*(p_ref*Vcyl/(R*T_ref))/Fuel_O2_req*(Ts/(2*pow(10.0,-3.0))); //[mol/s] molare amount injected per sample (def.: duration = 2 ms for "std filled" cyl)
-const double Fuel_T_Autoignition = 273.15 + 1255.0; //https://de.wikipedia.org/wiki/Z%C3%BCndtemperatur
+const double Fuel_T_Autoignition = 273.15 + 255.0; //https://de.wikipedia.org/wiki/Z%C3%BCndtemperatur
 
 // phys/chem/math consts [Fuel, H2O, CO, CO2]
 //const double ChemRectionRate[4] = {12.0, 40.0, 10.0, 5.0}; // was too slow at ~5000rpm
-const double ChemRectionRate[4] = {50.0, 40.0, 10.0, 3.0}; // reaction rate at T&p_ref
+const double ChemRectionRate[4] = {20.0, 60.0, 20.0, 10.0}; // reaction rate at T&p_ref
 
 //const double ChemRectionRate[4] = {0.40, 0.026, 0.026, 0.026}; // reaction rate at T&p_ref
 //const double ChemRectionRate[4] = {30.0, 30.0, 30.00, 15.0}; // reaction rate at T&p_ref
