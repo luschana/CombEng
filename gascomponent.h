@@ -26,7 +26,7 @@
 class GasComponent
 {
 public:
-	static GasComponent *getFuelComponent();
+	static GasComponent *getNewFuelComponent();
 	GasComponent();
 	GasComponent(double V, double T, double p);
 	GasComponent(double V, double T, double p, const double nu[defs::Fuel+1]);

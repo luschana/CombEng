@@ -98,7 +98,7 @@ const double Oil_p[6] = {273.15 + 25.0, 0.1, 273.15 + 150.0, 0.003, 500.0, 10}; 
 const double Fuel_n_C = 10.0;
 const double Fuel_O2_req = Fuel_n_C * 1.5 + 0.5; //[mol_O2/mol_Fuel] mols of O2 for stoichiometric reaction of an alkane
 // injection
-const double Fuel_n_Inject = nu_Air[defs::O2]*(p_ref*Vcyl/(R*T_ref))/Fuel_O2_req*(Ts/(2*pow(10.0,-3.0))); //[mol/s] molare amount injected per sample (def.: duration = 2 ms for "std filled" cyl)
+const double Fuel_n_Inject = nu_Air[defs::O2]*(p_ref*Vcyl/(R*T_ref))/Fuel_O2_req*(Ts/(2.0*pow(10.0,-3.0))); //[mol/s] molare amount injected per sample (def.: duration = 2 ms for "std filled" cyl)
 const double Fuel_T_Autoignition = 273.15 + 255.0; //https://de.wikipedia.org/wiki/Z%C3%BCndtemperatur
 
 // phys/chem/math consts [Fuel, H2O, CO, CO2]
