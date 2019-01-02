@@ -53,7 +53,7 @@ const double EPSILON = pow(10.0,-9.0); // max deviation of double numbers
 
 // engine consts
 // mechanical
-const int Ncyl = 1; // number of cylinders
+const int Ncyl = 4; // number of cylinders
 const double Vcyl = 0.5*pow(10.0,-3.0); //[m3] cylinder volume
 const double chi = 18.0; // compression factor
 const double w_engine_min = 150.0*M_PI/30.0; // minimum engine speed -- injection starting point
