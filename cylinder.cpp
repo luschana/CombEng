@@ -193,10 +193,7 @@ double Cylinder::getCmpFactor() const {
  * is alpha passed by (or reached) during this step?
  */
 bool Cylinder::passedAngle(double alpha, double dphi) {
-	bool result = (alpha < _phi && _phi <= alpha + dphi);
-	if(alpha < dphi){
-		result = (alpha+4*M_PI < _phi && _phi <= alpha+4*M_PI + dphi);
-	}
+	bool result = (_phi >= alpha) && (_phi-dphi < alpha);
 	return result;
 }
 
