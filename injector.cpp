@@ -9,13 +9,13 @@
 
 
 Injector::Injector() {
-	_pFuel = GasComponent::getFuelComponent();
+	_pFuel = GasComponent::getNewFuelComponent();
 	_pEcu = NULL;
 	_n_Fuel = 0.0;
 }
 
 Injector::Injector(Ecu* pEcu) {
-	_pFuel = GasComponent::getFuelComponent();
+	_pFuel = GasComponent::getNewFuelComponent();
 	_pEcu = pEcu;
 	_n_Fuel = 0.0;
 }

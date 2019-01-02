@@ -94,7 +94,10 @@ GasComponent::GasComponent(double V, double T, double p, const double nu[defs::F
 	_dirtyFlag = false;
 }
 
-GasComponent* GasComponent::getFuelComponent() {
+/*
+ * initializes a GC as Fuel component
+ */
+GasComponent* GasComponent::getNewFuelComponent() {
 	GasComponent *result = new GasComponent();
 	for (int i = 0; i < defs::Fuel+1; i++) {
 		result->_nu[i]=0.0;
