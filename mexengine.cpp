@@ -124,10 +124,10 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 		if (i < Ncyl){
 			y[4] += engine->getCyl_T(i);
 			y[19+i] = engine->getp_Cyl(i);
-			y[26+i] = engine->getT_Cyl(i);
+			y[25+i] = engine->getT_Cyl(i);
 		}else{
 			y[19+i] = 0.0;
-			y[26+i] = 0.0;
+			y[25+i] = 0.0;
 		}
 	}
 	y[4] /= Ncyl;
@@ -146,7 +146,7 @@ static void mdlOutputs(SimStruct *S, int_T tid){
 	y[18] = engine->getExhaust().getNu()[defs::Fuel];
 	// p1..6
 	// T1..6
-	y[31] = Environment::getInst()->getExhaustGas()->getP();
+	y[31] = Environment::getInst()->getExhaustGas()->getT();
 
 }
 
