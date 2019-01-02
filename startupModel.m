@@ -17,9 +17,9 @@ catch exc
         warning(message('ülülüü:', exc.identifier, exc.message));
 end
 
-%open required libraries
-addpath('E:\AVL\buildEnv\lib');
-open_MyLibs
+%%open required libraries
+%addpath('E:\AVL\buildEnv\lib');
+%open_MyLibs
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%  Model spec. defs %%%
