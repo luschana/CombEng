@@ -238,6 +238,8 @@ void GasComponent::calcStateChange(double cmpFactor, double H_cooling, const Gas
 	deltaH = _H - deltaH; //now it's the delta
 
 	double T_est = _T + deltaH/(_n_g*_cp);
+	if(T_est < 100) T_est=173.15;
+	if(T_est > 4000) T_est=3500.0;
 	cleanUpStateChange(T_est);
 }
 
