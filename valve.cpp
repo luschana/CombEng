@@ -25,7 +25,8 @@ Valve::Valve(double A_Valves){
  * constructor for a valve
  */
 Valve::Valve(double A_Valves, int num_Valves, double phi_open, double phi_close){
-	_phi_m = (phi_open+phi_close)/2;
+	if(phi_open > phi_close) phi_close += 4*M_PI;
+	_phi_m = normalizeCranckAngle((phi_open+phi_close)/2);
 	_dphi = (phi_close-phi_open)/2;
 	_num = num_Valves;
 	_r = sqrt(A_Valves/((double)num_Valves * M_PI));
